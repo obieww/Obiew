@@ -1,0 +1,30 @@
+@import "./components/common/const.less";
+
+html, body, .page {
+  height: 100%;
+}
+
+body {
+  padding-top: @BodyPaddingTopo;
+  background-color: rgba(139,178,198,0.3);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.content {
+  min-height: 100%;
+  .main-container {
+    padding-top: 50px;
+  }
+}
+
+.particles {
+  position: fixed;
+  top:0;
+  right:0;
+  bottom:0;
+  left:0;
+  z-index: -1;
+}

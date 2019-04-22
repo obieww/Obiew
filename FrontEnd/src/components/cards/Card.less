@@ -1,0 +1,32 @@
+.panel-custom {
+  background-color: #FFFFFF;
+  padding: 10px;
+  border: 1px black solid;
+  margin-bottom: -1px;
+
+  .input {
+    margin-left: 40px;
+    margin-top: 20px;
+  }
+
+  .comment {
+    resize: none;
+    overflow: auto;
+    height: 35px;
+    border-color: rgba(86,153,187,0.5);
+    transition: height .3s ease-out;
+    border-radius: 5px;
+  }
+
+  .comment:focus {
+    height: 70px;
+  }
+
+  .reply {
+    border-top: 1px solid rgba(86,153,187,0.5);
+  }
+}
+
+.panel-custom:hover {
+  background-color: rgba(240,240,240,0.4);
+}

@@ -1,12 +1,13 @@
 package com.obiew.Entities;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-@Entity
+@Entity(name = "User")
+@Table(name = "user")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -14,8 +15,11 @@ public class User {
     private String username;
     private String password;
 
+    @OneToMany(mappedBy = "user")
+    private List<Like> likes;
     public User() {}
     public User(String username, String password) {
+        this.likes = new ArrayList<>();
         this.username = username;
         this.password = password;
     }
@@ -44,27 +48,13 @@ public class User {
         this.password = password;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return getUserId() == user.getUserId() &&
-                Objects.equals(getUsername(), user.getUsername()) &&
-                Objects.equals(getPassword(), user.getPassword());
+    public List<Like> getLikes() {
+        return likes;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getUserId(), getUsername(), getPassword());
+    public void addLike(Like like) {
+        likes.add(like);
+        like.setUser(this);
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "userId=" + userId +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
 }

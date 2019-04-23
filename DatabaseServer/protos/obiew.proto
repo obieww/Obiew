@@ -1,0 +1,172 @@
+// Definition of protos and RPC services for Obiew.
+
+syntax = "proto3";
+
+package obiew;
+
+// A User.
+message User {
+    int32 user_id = 1;
+    string password = 2; // TODO: Encryption.
+    string name = 3;
+    int32 profile_picture = 4; // Id for retrieving image.
+    string email = 5;
+    string phone = 6;
+}
+
+// Get User Request.
+message GetUserRequest {
+    int32 user_id = 1;
+}
+
+// Get User Response.
+message GetUserResponse {
+    User user = 1;
+}
+
+// Get Follow(s) Request.
+message GetFollowsRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+}
+
+// Get Follow(s) Response.
+message GetFollowsResponse {
+    repeated User user = 1;
+}
+
+message UserStat {
+    int32 user_id = 1;
+    int32 posts = 2;
+    int32 following = 3;
+    int32 followers = 4;
+}
+
+// Get UserStat Request.
+message GetUserStatRequest {
+    int32 user_id = 1;
+}
+
+// Get UserStat Response.
+message GetUserStatResponse {
+    UserStat user_stat = 1;
+}
+
+// An Obiew Post.
+message Post {
+    int32 post_id = 1;
+    int32 user_id = 2;
+    string content = 3;
+    int32 image_id = 4; // Id for image look-up.
+    Timestamp created = 5;
+    bool is_repost = 6;
+    int32 reposts = 7;
+    int32 comments = 8;
+    int32 likes = 9;
+}
+
+// Get Post(s) Request.
+message GetPostsRequest {
+    oneof id_oneof { // The request has to be one of the following types.
+        int32 post_id = 1; // Get a post by post_id.
+        int32 user_id = 2; // Get posts created by user_id.
+        int32 feed_user_id =3; // Get posts in news feed for user_id.
+    }
+}
+
+// Get Post(s) Request.
+message GetPostsResponse {
+    repeated Post post = 1;
+}
+
+// A Repost under an Obiew Post.
+message Repost {
+    int32 repost_id = 1;
+    int32 post_id = 2;
+    int32 user_id = 3;
+    string content = 4;
+    Timestamp created = 5;
+}
+
+// Get Repost(s) Request.
+message GetRepostsRequest {
+    oneof id_oneof { // The request has to be one of the following types.
+        int32 repost_id = 1; // Get a repost by repost_id.
+        int32 post_id = 2; // Get reposts under post_id.
+    }
+}
+
+// Get Repost(s) Response.
+message GetRepostsResponse {
+    repeated Repost repost = 1;
+}
+
+// A Comment under an Obiew Post.
+message Comment {
+    int32 comment_id = 1;
+    int32 post_id = 2;
+    int32 user_id = 3;
+    string content = 4;
+    Timestamp created = 5;
+}
+
+// Get Comment(s) Request.
+message GetCommentsRequest {
+    oneof id_oneof { // The request has to be one of the following types.
+        int32 comment_id = 1; // Get a comment by comment_id.
+        int32 post_id = 2; // Get comments under post_id.
+        int32 user_id = 3; // Get comments created by user_id.
+    }
+}
+
+// Get Comment(s) Response.
+message GetCommentsResponse {
+    repeated Comment comment = 1;
+}
+
+// A Like under an Obiew Post.
+
+enum LikeType {
+    LIKE = 0;
+    DISLIKE = 1;
+}
+
+message Like {
+    int32 like_id = 1;
+    int32 post_id = 2;
+    int32 user_id = 3;
+    LikeType type = 4;
+    Timestamp created = 5;
+}
+
+// Get Like(s) Request.
+message GetLikesRequest {
+    oneof id_oneof { // The request has to be one of the following types.
+        int32 like_id = 1; // Get a like by like_id.
+        int32 post_id = 2; // Get likes under post_id.
+        int32 user_id = 3; // Get likes created by user_id.
+    }
+}
+
+// Get Like(s) Response.
+message GetLikesResponse {
+    repeated Like like = 1;
+}
+
+
+
+// RPC Service for posts, comments, likes, and follows.
+service Obiew {
+
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+
+    rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
+
+    rpc GetFollows (GetFollowsRequest) returns (GetFollowsResponse) {}
+
+    rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
+
+    rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {}
+
+    rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
+}

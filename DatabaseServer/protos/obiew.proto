@@ -63,10 +63,11 @@ message Post {
     string content = 3;
     int32 image_id = 4; // Id for image look-up.
     Timestamp created = 5;
-    Post repost = 6;
-    int32 reposts = 7;
-    int32 comments = 8;
-    int32 likes = 9;
+    Post original_post = 6;
+    int32 direct_repost_id = 7;
+    int32 num_reposts = 8;
+    int32 num_comments = 9;
+    int32 num_likes = 10;
 }
 
 // Get Post(s) Request.
@@ -92,9 +93,9 @@ message SetPostRequest {
 // UserStat displayed in User's Profile page.
 message UserStat {
     int32 user_id = 1;
-    int32 posts = 2;
-    int32 following = 3;
-    int32 followers = 4;
+    int32 num_posts = 2;
+    int32 num_following = 3;
+    int32 num_followers = 4;
     repeated Post recent_posts = 5;
 }
 

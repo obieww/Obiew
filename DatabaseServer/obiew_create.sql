@@ -59,7 +59,10 @@ CREATE TABLE Follows (
 	UserId INT AUTO_INCREMENT,
 	FolloweeId INT,
     Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT pk_Follows_UserId PRIMARY KEY (UserId),
+    CONSTRAINT pk_Follows_UserId_FolloweeId PRIMARY KEY (UserId, FolloweeId),
+	CONSTRAINT fk_Follows_UserId FOREIGN KEY (UserId)
+		REFERENCES Users(UserId)
+        ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_Follows_FolloweeId FOREIGN KEY (FolloweeId)
 		REFERENCES Users(UserId)
         ON UPDATE CASCADE ON DELETE CASCADE

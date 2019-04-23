@@ -4,6 +4,14 @@ syntax = "proto3";
 
 package obiew;
 
+message EmptyMessage {}
+
+enum OperationType {
+    CREATE = 1;
+    UPDATE = 2;
+    DELETE = 3;
+}
+
 // A User.
 message User {
     int32 user_id = 1;
@@ -24,6 +32,12 @@ message GetUserResponse {
     User user = 1;
 }
 
+// Set User Request.
+message SetUserRequest {
+    User user = 1;
+    OperationType operation = 2;
+}
+
 // Get Follow(s) Request.
 message GetFollowsRequest {
     int32 follower_id = 1;
@@ -35,21 +49,11 @@ message GetFollowsResponse {
     repeated User user = 1;
 }
 
-message UserStat {
-    int32 user_id = 1;
-    int32 posts = 2;
-    int32 following = 3;
-    int32 followers = 4;
-}
-
-// Get UserStat Request.
-message GetUserStatRequest {
-    int32 user_id = 1;
-}
-
-// Get UserStat Response.
-message GetUserStatResponse {
-    UserStat user_stat = 1;
+// Set Follow Request.
+message SetFollowRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+    OperationType operation = 3;
 }
 
 // An Obiew Post.
@@ -59,7 +63,7 @@ message Post {
     string content = 3;
     int32 image_id = 4; // Id for image look-up.
     Timestamp created = 5;
-    bool is_repost = 6;
+    Post repost = 6;
     int32 reposts = 7;
     int32 comments = 8;
     int32 likes = 9;
@@ -74,9 +78,34 @@ message GetPostsRequest {
     }
 }
 
-// Get Post(s) Request.
+// Get Post(s) Response.
 message GetPostsResponse {
     repeated Post post = 1;
+}
+
+// Set Post Request.
+message SetPostRequest {
+    Post post = 1;
+    OperationType operation = 2;
+}
+
+// UserStat displayed in User's Profile page.
+message UserStat {
+    int32 user_id = 1;
+    int32 posts = 2;
+    int32 following = 3;
+    int32 followers = 4;
+    repeated Post recent_posts = 5;
+}
+
+// Get UserStat Request.
+message GetUserStatRequest {
+    int32 user_id = 1;
+}
+
+// Get UserStat Response.
+message GetUserStatResponse {
+    UserStat user_stat = 1;
 }
 
 // A Repost under an Obiew Post.
@@ -90,10 +119,7 @@ message Repost {
 
 // Get Repost(s) Request.
 message GetRepostsRequest {
-    oneof id_oneof { // The request has to be one of the following types.
-        int32 repost_id = 1; // Get a repost by repost_id.
-        int32 post_id = 2; // Get reposts under post_id.
-    }
+    int32 post_id = 2; // Get reposts under post_id.
 }
 
 // Get Repost(s) Response.
@@ -122,6 +148,12 @@ message GetCommentsRequest {
 // Get Comment(s) Response.
 message GetCommentsResponse {
     repeated Comment comment = 1;
+}
+
+// Set Comment Request.
+message SetCommentRequest {
+    Comment comment = 1;
+    OperationType operation = 2;
 }
 
 // A Like under an Obiew Post.
@@ -153,7 +185,11 @@ message GetLikesResponse {
     repeated Like like = 1;
 }
 
-
+// Set Like Request.
+message SetLikeRequest {
+    Like like = 1;
+    OperationType operation = 2;
+}
 
 // RPC Service for posts, comments, likes, and follows.
 service Obiew {
@@ -164,9 +200,21 @@ service Obiew {
 
     rpc GetFollows (GetFollowsRequest) returns (GetFollowsResponse) {}
 
+    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {}
+
     rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
 
     rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {}
 
     rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
+
+    rpc SetUser (SetUserRequest) returns (EmptyMessage) {}
+
+    rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
+
+    rpc SetPost (SetPostRequest) returns (EmptyMessage) {}
+
+    rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
+
+    rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
 }

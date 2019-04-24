@@ -24,16 +24,21 @@ INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
 
 
-INSERT INTO Comments (PostId, UserId, Content) VALUES (2, 1, "Nice");
-INSERT INTO Comments (PostId, UserId, Content) VALUES (2, 3, "Great");
-INSERT INTO Comments (PostId, UserId, Content) VALUES (3, 1, "Haha");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 3, "Great");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (3, 2, "Haha");
+
+INSERT INTO PostLikes (PostId, UserId) VALUES (3, 1);
+INSERT INTO PostLikes (PostId, UserId) VALUES (2, 1);
+INSERT INTO PostLikes (PostId, UserId) VALUES (3, 2);
 
 SELECT * FROM Users;
 SELECT * FROM Follows;
 SELECT * FROM UserStats;
 SELECT * FROM Posts;
 SELECT * FROM PostStats;
-SELECT * FROM Comments;
+SELECT * FROM PostComments;
+SELECT * FROM PostLikes;
 
 -- DELETE FROM Users where UserId = 2;
 -- DELETE FROM Posts WHERE PostId = 4;

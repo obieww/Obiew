@@ -1,6 +1,7 @@
 package com.obiew.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -9,8 +10,10 @@ import java.util.Objects;
 @Table(name = "likes")
 public class Like {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long likeId;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @Column(columnDefinition = "CHAR(32)")
+    private String likeId;
     @OneToOne
     @JoinColumn(name = "userId")
     @JsonIgnore
@@ -22,11 +25,11 @@ public class Like {
 
     public Like() {}
 
-    public long getLikeId() {
+    public String getLikeId() {
         return likeId;
     }
 
-    public void setLikeId(long likeId) {
+    public void setLikeId(String likeId) {
         this.likeId = likeId;
     }
 
@@ -51,9 +54,7 @@ public class Like {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Like like = (Like) o;
-        return getLikeId() == like.getLikeId() &&
-                Objects.equals(getUser(), like.getUser()) &&
-                Objects.equals(getObiew(), like.getObiew());
+        return Objects.equals(getLikeId(), like.getLikeId());
     }
 
     @Override

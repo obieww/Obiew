@@ -1,6 +1,7 @@
 package com.obiew.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.LinkedList;
@@ -11,8 +12,10 @@ import java.util.Objects;
 @Table(name = "obiew")
 public class Obiew {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long obiewId;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @Column(columnDefinition = "CHAR(32)")
+    private String obiewId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
     @JsonIgnore
@@ -43,11 +46,11 @@ public class Obiew {
         likeList.add(like);
     }
 
-    public long getObiewId() {
+    public String getObiewId() {
         return obiewId;
     }
 
-    public void setObiewId(long obiewId) {
+    public void setObiewId(String obiewId) {
         this.obiewId = obiewId;
     }
 
@@ -96,7 +99,7 @@ public class Obiew {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Obiew obiew = (Obiew) o;
-        return getObiewId() == obiew.getObiewId() &&
+        return Objects.equals(getObiewId(), obiew.getObiewId()) &&
                 Objects.equals(getContent(), obiew.getContent()) &&
                 Objects.equals(getLikeList(), obiew.getLikeList()) &&
                 Objects.equals(getCommentList(), obiew.getCommentList());

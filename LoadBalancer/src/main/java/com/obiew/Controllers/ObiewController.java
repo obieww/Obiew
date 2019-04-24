@@ -3,6 +3,7 @@ package com.obiew.Controllers;
 import com.obiew.Entities.Obiew;
 import com.obiew.Repositories.ObiewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +17,12 @@ public class ObiewController {
     private ObiewRepository obiewRepository;
     @GetMapping("/{obiewId}")
     public ResponseEntity<Obiew> getObiewById(@PathVariable String obiewId) {
-        Obiew obiew =
+        Obiew obiew = obiewRepository.findObiewById(obiewId);
+        if(obiew != null) {
+            return new ResponseEntity<>(obiew, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
     }
+
 }

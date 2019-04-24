@@ -18,7 +18,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Obiew> obiewList;
 
-    public User() {}
+    public User() {
+    }
+
     public User(String username, String password) {
         this.username = username;
         this.password = password;
@@ -67,14 +69,12 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return getUserId() == user.getUserId() &&
-                Objects.equals(getUsername(), user.getUsername()) &&
-                Objects.equals(getPassword(), user.getPassword()) &&
-                Objects.equals(getObiewList(), user.getObiewList());
+        return Objects.equals(getUsername(), user.getUsername()) &&
+                Objects.equals(getPassword(), user.getPassword());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getUserId(), getUsername(), getPassword(), getObiewList());
+        return Objects.hash(getUserId(), getUsername(), getPassword());
     }
 }

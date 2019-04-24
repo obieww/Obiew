@@ -1,6 +1,7 @@
 package com.obiew.Controllers;
 
 import com.obiew.Entities.Like;
+import com.obiew.Entities.Obiew;
 import com.obiew.Repositories.UserRepository;
 import com.obiew.Entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,12 +30,13 @@ public class LoadBalanceController {
         return new ResponseEntity<Iterable<User>>(userRepository.findAll(), HttpStatus.OK);
     }
 
-    @RequestMapping("/addlike")
-    public @ResponseBody ResponseEntity<User> addLike() {
-        User user = new User("aaa", "bbb");
-        user.addLike(new Like());
-        user.addLike(new Like());
-        user.addLike(new Like());
+    @RequestMapping("/run")
+    public @ResponseBody ResponseEntity<User> run() {
+        User user = new User("aaa", "123");
+        Obiew obiew = new Obiew("first obiew");
+        obiew.addComment(new Obiew("comment"));
+        user.addObiew(obiew);
+        user.addObiew(new Obiew("second obiew"));
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

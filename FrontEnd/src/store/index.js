@@ -3,7 +3,6 @@ const store = {
         userId: "",
         user: {
             name: "Visitor",
-            pic: "../../images/person_default.png",
             login: true
         }
     }

@@ -39,9 +39,9 @@ class Post extends Component {
             onChange={this.onInputChange} />
         </div>
         <div className="footer-custom">
-          <a className={"btn" + (inputMessage === "" ? " disabled" : "")}
+          <a className={"btn grow" + (inputMessage === "" ? " disabled" : "")}
             onClick={this.onClick}>
-            <img classname="logo" src={Logo} alt="post"/>
+            <img className="logo" src={Logo} alt="post"/>
           </a>
         </div>
       </div>

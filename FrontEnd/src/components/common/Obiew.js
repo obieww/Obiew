@@ -1,27 +1,37 @@
 import React, {Component} from "react";
 import utils from "@/utils";
+import portrait from '../../images/person_default.png'
 import "./Obiew.less";
 
 class Obiew extends Component {
   render() {
+    const {
+      username,
+      obiew,
+      timestamp,
+      rightBtns,
+    } = this.props.info
     return (
       <div className="media">
-        <div className="media-left">
-          <img className="media-object person-icon" src={require("../../images/person_default.png")} alt="..."/>
+        <div className="left">
+          <img className="person-icon pa1 ba b--black-10" src={portrait} alt='portrait'/>
         </div>
         <div className="media-body">
-          <p><b className="remark-person-name">{this.props.info.username}</b></p>
-          <p><span>{this.props.info.obiew}</span></p>
+          <p>
+            <b className="remark-person-name f3 mb2">{username}</b>
+            <div className="follow gray f4">Followed</div>
+          </p>
+          <p><span>{obiew}</span></p>
           <div className="remark-foot">
-            <div className="remark-item-left">{utils.timeFormat(this.props.info.timestamp)}</div>
+            <div className="remark-item-left">{utils.timeFormat(timestamp)}</div>
             {
-              this.props.info.rightBtns.map((rightBtn, index) => (
+              rightBtns.map((rightBtn, index) => (
                 <React.Fragment key={index}>
                   <div className="remark-item-right" onClick={(e) => this.props.onClickRightBtn(rightBtn)}>
                     <span className={"glyphicon " + rightBtn.icon}></span>  {rightBtn.label}
                   </div>
                   {
-                    index !== this.props.info.rightBtns.length - 1 ? 
+                    index !== rightBtns.length - 1 ? 
                     <div className="remark-item-right split" /> :
                     null
                   }

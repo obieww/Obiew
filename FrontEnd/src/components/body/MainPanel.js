@@ -2,7 +2,6 @@ import React, {Component} from "react";
 import Post from "@/components/common/Post.js";
 import Card from "@/components/cards/Card.js";
 import utils from "@/utils";
-import store from "@/store";
 import "./MainPanel.less";
 
 class MainPanel extends Component {
@@ -75,7 +74,12 @@ class MainPanel extends Component {
         }
         {
           showAnchor ?
-          <a className="anchor" v-show="showAnchor"><span className="glyphicon glyphicon-chevron-up"></span></a> :
+          <a 
+            className="anchor" 
+            v-show="showAnchor"
+            onClick={() => window.scrollTo(0, 0)}>
+            <span className="glyphicon glyphicon-chevron-up" />
+            </a> :
           null
         }
       </div>

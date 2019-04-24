@@ -17,7 +17,7 @@ utils.defaultObiews = [
         obiewId: 0,
         pic: "../../images/person_default.png",
         username: "Anonymous",
-        timestamp: 1509526435275 + 1 * 1000,
+        timestamp: Date.now(),
         likes: [
             {
                 userId: 1,
@@ -40,14 +40,14 @@ utils.defaultObiews = [
                 commentId: 0,
                 obiewId: 0,
                 userId: 1,
-                timestamp: 1509526435275 + 15 * 1000,
+                timestamp: Date.now(),
                 reply: "Words cannot describe the tremendous sorrow for the great loss of the innocents."
             },
             {
                 commentId: 1,
                 obiewId: 0,
                 userId: 2,
-                timestamp: 1509526435275 + 15 * 1000,
+                timestamp: Date.now(),
                 reply: "Words cannot describe the tremendous sorrow for the great loss of the innocents."
             }
         ], 
@@ -58,7 +58,7 @@ utils.defaultObiews = [
         obiewId: 1,
         pic: "../../images/person_default.png",
         username: "Anonymous",
-        timestamp: 1509526435275 + 16 * 1000,
+        timestamp: Date.now(),
         likes: [
             {
                 userId: 1,
@@ -71,7 +71,7 @@ utils.defaultObiews = [
                 commentId: 2,
                 obiewId: 1,
                 userId: 1,
-                timestamp: 1509526435275 + 20 * 1000,
+                timestamp: Date.now(),
                 reply: "Words cannot describe the tremendous sorrow for the great loss of the innocents."
             }
         ], 

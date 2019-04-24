@@ -1,6 +1,5 @@
 import React, {Component} from "react";
-import {BrowserRouter as Router, Route, Link} from "react-router-dom";
-import store from "@/store";
+import { Route, Link, BrowserRouter as Router } from "react-router-dom";
 import "./Header.less";
 
 const CustomerLink = ({label, to, className}) => (

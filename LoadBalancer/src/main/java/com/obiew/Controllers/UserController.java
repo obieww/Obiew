@@ -9,7 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserController {
     @Autowired
     private UserRepository userRepository;
@@ -25,6 +25,26 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<User> login(@RequestBody User user) {
         if(user != null && user.equals(userRepository.findByUsername(user.getUsername()))) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Boolean> delete(@RequestBody User user) {
+        if(user != null && user.equals(userRepository.findByUsername(user.getUsername()))) {
+            userRepository.delete(user);
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.FORBIDDEN);
+        }
+    }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<User> getUser(@PathVariable String userId) {
+        User user = userRepository.findByUserId(userId);
+        if(user != null) {
             return new ResponseEntity<>(user, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(null, HttpStatus.FORBIDDEN);

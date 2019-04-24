@@ -11,6 +11,11 @@ utils.defaultObiew = (cards, strMsg) => ({
     obiew: strMsg
 })
 
+utils.defaultState = {
+    username: 'Anonymous',
+    obiews: utils.defaultObiews,
+}
+
 utils.defaultObiews = [
     {
         userId: 0,

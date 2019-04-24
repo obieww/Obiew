@@ -8,9 +8,10 @@ class MainPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-        hasNewMsg: true,
-        showAnchor: false,
-        cards: []
+      username: 'Anonymous',
+      hasNewMsg: true,
+      showAnchor: false,
+      obiews: []
     };
     this.onShowNewMessage = this.onShowNewMessage.bind(this);
     this.onMousewheel = this.onMousewheel.bind(this);
@@ -19,7 +20,7 @@ class MainPanel extends Component {
 
   componentWillMount() {
     this.setState({
-      cards: utils.defaultObiews,
+      obiews: utils.defaultObiews,
     });
     window.addEventListener("scroll", this.onMousewheel);
   }
@@ -35,10 +36,10 @@ class MainPanel extends Component {
   }
 
   onShowNewMessage(e) {
-    let cards = this.state.cards;
-    cards.unshift(utils.defaultObiew(cards, "new message"))
+    let obiews = this.state.obiews.slice(0);
+    obiews.unshift(utils.defaultObiew(obiews, "new message"))
     this.setState({
-      cards: cards
+      obiews: obiews
     })
     this.setState({
       hasNewMsg: false
@@ -47,16 +48,16 @@ class MainPanel extends Component {
   }
 
   onCreateNewObiew(strMsg) {
-    let cards = this.state.cards;
-    cards.unshift(utils.defaultObiew(cards, strMsg));
+    let obiews = this.state.obiews.slice(0);
+    obiews.unshift(utils.defaultObiew(obiews, strMsg));
     this.setState({
-      cards: cards
+      obiews: obiews,
     })
   }
 
   render() {
     const {
-      cards,
+      obiews,
       showAnchor
     } = this.state
     return (
@@ -70,7 +71,7 @@ class MainPanel extends Component {
           null
         }
         {
-          cards.map(card => <Card key={card.obiewId} card={card} />)
+          obiews.map(card => <Card key={card.obiewId} card={card} />)
         }
         {
           showAnchor ?

@@ -9,19 +9,19 @@ import './App.less';
 class App extends Component {
   render() {
     return (
-      <Router>
-        <div className="page">
-          <Header username="Anonymous" />
-          <div className="content">
-            <div className="container main-container">
-              <Route path="/" exact component={MainPanel}></Route>
-              <Route path="/register" exact component={Register}></Route>
-              <Route path="/login" exact component={Login}></Route>
+        <Router>
+          <div className="page">
+            <Header username="Anonymous" />
+            <div className="content">
+              <div className="container main-container">
+                <Route path="/" exact component={MainPanel}></Route>
+                <Route path="/register" exact component={Register}></Route>
+                <Route path="/login" exact component={Login}></Route>
+              </div>
             </div>
           </div>
-        </div>
-      </Router>
-    );
+        </Router>
+    )
   }
 }
 

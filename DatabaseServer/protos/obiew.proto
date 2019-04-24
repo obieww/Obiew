@@ -7,9 +7,9 @@ package obiew;
 message EmptyMessage {}
 
 enum OperationType {
-    CREATE = 1;
-    UPDATE = 2;
-    DELETE = 3;
+    CREATE = 0;
+    UPDATE = 1;
+    DELETE = 2;
 }
 
 // A User.
@@ -20,6 +20,22 @@ message User {
     int32 profile_picture = 4; // Id for retrieving image.
     string email = 5;
     string phone = 6;
+}
+
+message RegisterRequest {
+    User user;
+}
+
+message RegisterResponse {
+    User user;
+}
+
+message LogInRequest {
+    User user;
+}
+
+message LogInResponse {
+    User user;
 }
 
 // Get User Request.
@@ -157,19 +173,11 @@ message SetCommentRequest {
     OperationType operation = 2;
 }
 
-// A Like under an Obiew Post.
-
-enum LikeType {
-    LIKE = 0;
-    DISLIKE = 1;
-}
-
 message Like {
     int32 like_id = 1;
     int32 post_id = 2;
     int32 user_id = 3;
-    LikeType type = 4;
-    Timestamp created = 5;
+    Timestamp created = 4;
 }
 
 // Get Like(s) Request.
@@ -194,6 +202,10 @@ message SetLikeRequest {
 
 // RPC Service for posts, comments, likes, and follows.
 service Obiew {
+
+    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+
+    rpc LogIn (LogInRequest) returns (LogInResponse) {}
 
     rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
 

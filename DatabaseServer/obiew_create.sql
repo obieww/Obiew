@@ -30,7 +30,7 @@ CREATE TABLE Posts (
 	PostId INT AUTO_INCREMENT,
     UserId INT,
     Content TEXT,
-    ImageId INT,
+    ImageId INT DEFAULT -1,
     Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     RepostId INT, -- The directly reposted post.
     OriginalPostId INT, -- The very original post in repost chain.
@@ -124,7 +124,6 @@ CREATE TABLE Likes (
 	LikeId INT AUTO_INCREMENT,
 	PostId INT,
     UserId INT,
-    Type TEXT,
     Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT pk_Likes_LikeId PRIMARY KEY (LikeId),
     CONSTRAINT fk_Likes_UserId FOREIGN KEY (UserId)

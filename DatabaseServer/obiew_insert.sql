@@ -21,14 +21,21 @@ INSERT INTO Posts (UserId, Content) VALUES (1, "My first post.");
 INSERT INTO Posts (UserId, Content) VALUES (2, "My first post.");
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
+
+
+INSERT INTO Comments (PostId, UserId, Content) VALUES (2, 1, "Nice");
+INSERT INTO Comments (PostId, UserId, Content) VALUES (2, 3, "Great");
+INSERT INTO Comments (PostId, UserId, Content) VALUES (3, 1, "Haha");
 
 SELECT * FROM Users;
 SELECT * FROM Follows;
 SELECT * FROM UserStats;
 SELECT * FROM Posts;
 SELECT * FROM PostStats;
+SELECT * FROM Comments;
 
 -- DELETE FROM Users where UserId = 2;
-DELETE FROM Posts WHERE PostId = 4;
+-- DELETE FROM Posts WHERE PostId = 4;
 
 

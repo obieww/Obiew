@@ -3,6 +3,7 @@ package com.obiew.Entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -14,14 +15,21 @@ public class User {
     private long userId;
     private String username;
     private String password;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Obiew> obiewList;
 
-    @OneToMany(mappedBy = "user")
-    private List<Like> likes;
-    public User() {}
+    public User() {
+    }
+
     public User(String username, String password) {
-        this.likes = new ArrayList<>();
         this.username = username;
         this.password = password;
+        this.obiewList = new LinkedList<>();
+    }
+
+    public void addObiew(Obiew obiew) {
+        obiewList.add(obiew);
+        obiew.setUser(this);
     }
 
     public long getUserId() {
@@ -48,13 +56,25 @@ public class User {
         this.password = password;
     }
 
-    public List<Like> getLikes() {
-        return likes;
+    public List<Obiew> getObiewList() {
+        return obiewList;
     }
 
-    public void addLike(Like like) {
-        likes.add(like);
-        like.setUser(this);
+    public void setObiewList(List<Obiew> obiewList) {
+        this.obiewList = obiewList;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(getUsername(), user.getUsername()) &&
+                Objects.equals(getPassword(), user.getPassword());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getUserId(), getUsername(), getPassword());
+    }
 }

@@ -2,6 +2,7 @@ package com.obiew.Entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -20,18 +21,17 @@ public class User {
     private String username;
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonIgnoreProperties("user")
     private List<Obiew> obiewList;
     @ManyToMany
     @JoinTable(
             joinColumns = @JoinColumn(name = "followingId"),
             inverseJoinColumns = @JoinColumn(name = "followerId")
     )
-    @JsonManagedReference
-    private Set<User> followingList;
+    private List<User> followingList;
     @ManyToMany(mappedBy = "followingList")
-    @JsonBackReference
-    private Set<User> followerList;
+    @JsonIgnore
+    private List<User> followerList;
 
     public User() {
     }
@@ -40,8 +40,8 @@ public class User {
         this.username = username;
         this.password = password;
         this.obiewList = new LinkedList<>();
-        this.followerList = new HashSet<>();
-        this.followingList = new HashSet<>();
+        this.followerList = new LinkedList<>();
+        this.followingList = new LinkedList<>();
     }
 
     public void addObiew(Obiew obiew) {
@@ -86,19 +86,20 @@ public class User {
         this.obiewList = obiewList;
     }
 
-    public Set<User> getFollowingList() {
+    public List<User> getFollowingList() {
         return followingList;
     }
 
-    public void setFollowingList(Set<User> followingList) {
+    public void setFollowingList(List<User> followingList) {
         this.followingList = followingList;
     }
 
-    public Set<User> getFollowerList() {
+    @JsonIgnore
+    public List<User> getFollowerList() {
         return followerList;
     }
 
-    public void setFollowerList(Set<User> followerList) {
+    public void setFollowerList(List<User> followerList) {
         this.followerList = followerList;
     }
 

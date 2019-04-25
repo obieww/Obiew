@@ -1,6 +1,7 @@
 package com.obiew.Entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ public class Like {
     private User user;
     @ManyToOne
     @JoinColumn(name = "obiewId")
-    @JsonIgnore
+    @JsonIgnoreProperties("likeList")
     private Obiew obiew;
 
     public Like() {}

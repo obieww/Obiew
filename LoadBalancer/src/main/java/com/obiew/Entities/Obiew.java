@@ -1,7 +1,6 @@
 package com.obiew.Entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,18 +16,20 @@ public class Obiew {
     @GenericGenerator(name = "uuid", strategy = "uuid")
     @Column(columnDefinition = "CHAR(32)")
     private String obiewId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "userId")
-    @JsonBackReference
+    @JsonIgnoreProperties("ObiewList")
     private User user;
     private String content;
     @OneToMany(mappedBy = "obiew", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obiew")
     private List<Like> likeList;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("parent")
     private List<Obiew> commentList;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parentId")
-    @JsonIgnore
+    @JsonIgnoreProperties("commentList")
     private Obiew parent;
 
     public Obiew() {}

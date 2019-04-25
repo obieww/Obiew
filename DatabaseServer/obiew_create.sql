@@ -22,7 +22,8 @@ CREATE TABLE Users (
     ProfilePicture INT,
     Email VARCHAR(255),
     Phone VARCHAR(20),
-    CONSTRAINT pk_Users_UserId PRIMARY KEY (UserId)
+    CONSTRAINT pk_Users_UserId PRIMARY KEY (UserId),
+    CONSTRAINT uniq_Users_Name UNIQUE (Name)
 );
 
 # Create Posts.
@@ -225,7 +226,7 @@ CREATE TRIGGER before_comments_delete
     BEFORE DELETE ON PostComments
     FOR EACH ROW
     BEGIN
-        UPDATE Posts
+        UPDATE PostStats
         SET Comments = Comments - 1
             WHERE PostId = OLD.PostId;
     END$$
@@ -234,7 +235,7 @@ CREATE TRIGGER after_comments_insert
     AFTER INSERT ON PostComments
     FOR EACH ROW
     BEGIN
-        UPDATE Posts
+        UPDATE PostStats
         SET Comments = Comments + 1
             WHERE PostId = NEW.PostId;
     END$$
@@ -243,7 +244,7 @@ CREATE TRIGGER before_likes_delete
     BEFORE DELETE ON PostLikes
     FOR EACH ROW
     BEGIN
-        UPDATE Posts
+        UPDATE PostStats
         SET Likes = Likes - 1
             WHERE PostId = OLD.PostId;
     END$$
@@ -252,7 +253,7 @@ CREATE TRIGGER after_likes_insert
     AFTER INSERT ON PostLikes
     FOR EACH ROW
     BEGIN
-        UPDATE Posts
+        UPDATE PostStats
         SET Likes = Likes + 1
             WHERE PostId = NEW.PostId;
     END$$

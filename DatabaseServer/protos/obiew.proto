@@ -6,6 +6,12 @@ package obiew;
 
 message EmptyMessage {}
 
+message ServerConfig {
+    string my_addr = 1;
+    string my_paxos = 2;
+    repeated string replica = 3;
+}
+
 enum OperationType {
     CREATE = 0;
     UPDATE = 1;
@@ -23,19 +29,19 @@ message User {
 }
 
 message RegisterRequest {
-    User user;
+    User user = 1;
 }
 
 message RegisterResponse {
-    User user;
+    User user = 1;
 }
 
 message LogInRequest {
-    User user;
+    User user = 1;
 }
 
 message LogInResponse {
-    User user;
+    User user = 1;
 }
 
 // Get User Request.
@@ -78,7 +84,7 @@ message Post {
     int32 user_id = 2;
     string content = 3;
     int32 image_id = 4; // Id for image look-up.
-    Timestamp created = 5;
+    string created = 5;
     Post original_post = 6;
     int32 direct_repost_id = 7;
     int32 num_reposts = 8;
@@ -131,7 +137,7 @@ message Repost {
     int32 post_id = 2;
     int32 user_id = 3;
     string content = 4;
-    Timestamp created = 5;
+    string created = 5;
 }
 
 // Get Repost(s) Request.
@@ -150,7 +156,7 @@ message Comment {
     int32 post_id = 2;
     int32 user_id = 3;
     string content = 4;
-    Timestamp created = 5;
+    string created = 5;
 }
 
 // Get Comment(s) Request.
@@ -177,7 +183,7 @@ message Like {
     int32 like_id = 1;
     int32 post_id = 2;
     int32 user_id = 3;
-    Timestamp created = 4;
+    string created = 4;
 }
 
 // Get Like(s) Request.
@@ -230,4 +236,12 @@ service Obiew {
     rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
 
     rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
+}
+
+
+service MultiPaxos {
+    
+    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+
+    rpc LogIn (LogInRequest) returns (LogInResponse) {}
 }

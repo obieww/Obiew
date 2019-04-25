@@ -9,8 +9,8 @@ USE Obiew;
 -- DELETE FROM Users WHERE UserId != 0;
 
 INSERT INTO Users (Name) VALUES ("cesca");
-INSERT INTO Users (Name) VALUES ("shawn");
-INSERT INTO Users (Name) VALUES ("jiahan");
+INSERT INTO Users (Name) VALUES ("fibi");
+INSERT INTO Users (Name) VALUES ("hugh");
 
 INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 2);
 INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 3);

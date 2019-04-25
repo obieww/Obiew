@@ -7,6 +7,10 @@
 *.lo
 *.o
 *.obj
+*.grpc.pb.cc
+*.grpc.pb.h
+*.pb.cc
+*.pb.h
 
 # Precompiled Headers
 *.gch

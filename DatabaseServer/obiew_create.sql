@@ -19,7 +19,7 @@ CREATE TABLE Users (
     UserId INT AUTO_INCREMENT,
     Password VARBINARY(255),
     Name VARCHAR(255),
-    ProfilePicture INT DEFAULT -1,
+    ProfilePicture INT DEFAULT 0,
     Email VARCHAR(255),
     Phone VARCHAR(20),
     CONSTRAINT pk_Users_UserId PRIMARY KEY (UserId),
@@ -31,7 +31,7 @@ CREATE TABLE Posts (
     PostId INT AUTO_INCREMENT,
     UserId INT,
     Content TEXT,
-    ImageId INT DEFAULT -1,
+    ImageId INT DEFAULT 0,
     Created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     RepostId INT, -- The directly reposted post.
     OriginalPostId INT, -- The very original post in repost chain.

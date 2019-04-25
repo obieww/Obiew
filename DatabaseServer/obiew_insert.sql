@@ -8,9 +8,11 @@ USE Obiew;
 -- DELETE FROM Posts WHERE PostId != 0;
 -- DELETE FROM Users WHERE UserId != 0;
 
-INSERT INTO Users (Name, Password) VALUES ("cesca", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
-INSERT INTO Users (Name, Password) VALUES ("fibi", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
-INSERT INTO Users (Name, Password) VALUES ("hugh", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
+INSERT INTO Users (Name, Password, Email, Phone) VALUES ("cesca", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "cesca@gmail.com", "408-123-0001");
+INSERT INTO Users (Name, Password, Email, Phone) VALUES ("fibi", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "fibi@gmail.com", "408-123-0002");
+INSERT INTO Users (Name, Password, Email, Phone) VALUES ("hugh", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "hugh@gmail.com", "408-123-0003");
+INSERT INTO Users (Name, Password, Email, Phone) VALUES ("crown", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "crown@gmail.com", "408-123-0004");
+INSERT INTO Users (Name, Password, Email, Phone) VALUES ("fanfan", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "fanfan@gmail.com", "408-123-0005");
 
 SELECT * FROM Users WHERE AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512)))=Password;
 

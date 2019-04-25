@@ -1,22 +1,37 @@
 package com.obiew.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import org.hibernate.annotations.GenericGenerator;
+
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Entity(name = "User")
 @Table(name = "user")
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long userId;
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @Column(columnDefinition = "CHAR(32)")
+    private String userId;
     private String username;
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("user")
     private List<Obiew> obiewList;
+    @ManyToMany
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "followingId"),
+            inverseJoinColumns = @JoinColumn(name = "followerId")
+    )
+    private List<User> followingList;
+    @ManyToMany(mappedBy = "followingList")
+    @JsonIgnore
+    private List<User> followerList;
 
     public User() {
     }
@@ -25,6 +40,8 @@ public class User {
         this.username = username;
         this.password = password;
         this.obiewList = new LinkedList<>();
+        this.followerList = new LinkedList<>();
+        this.followingList = new LinkedList<>();
     }
 
     public void addObiew(Obiew obiew) {
@@ -32,11 +49,16 @@ public class User {
         obiew.setUser(this);
     }
 
-    public long getUserId() {
+    public void addFollowing(User following) {
+        followingList.add(following);
+        following.followerList.add(this);
+    }
+
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 
@@ -63,6 +85,24 @@ public class User {
     public void setObiewList(List<Obiew> obiewList) {
         this.obiewList = obiewList;
     }
+
+    public List<User> getFollowingList() {
+        return followingList;
+    }
+
+    public void setFollowingList(List<User> followingList) {
+        this.followingList = followingList;
+    }
+
+    @JsonIgnore
+    public List<User> getFollowerList() {
+        return followerList;
+    }
+
+    public void setFollowerList(List<User> followerList) {
+        this.followerList = followerList;
+    }
+
 
     @Override
     public boolean equals(Object o) {

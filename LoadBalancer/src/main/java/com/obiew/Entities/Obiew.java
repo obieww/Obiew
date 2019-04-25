@@ -1,6 +1,7 @@
 package com.obiew.Entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
+import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.util.LinkedList;
@@ -11,20 +12,24 @@ import java.util.Objects;
 @Table(name = "obiew")
 public class Obiew {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long obiewId;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @GeneratedValue(generator = "uuid")
+    @GenericGenerator(name = "uuid", strategy = "uuid")
+    @Column(columnDefinition = "CHAR(32)")
+    private String obiewId;
+    @ManyToOne
     @JoinColumn(name = "userId")
-    @JsonIgnore
+    @JsonIgnoreProperties("ObiewList")
     private User user;
     private String content;
     @OneToMany(mappedBy = "obiew", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("obiew")
     private List<Like> likeList;
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("parent")
     private List<Obiew> commentList;
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parentId")
-    @JsonIgnore
+    @JsonIgnoreProperties("commentList")
     private Obiew parent;
 
     public Obiew() {}
@@ -43,11 +48,11 @@ public class Obiew {
         likeList.add(like);
     }
 
-    public long getObiewId() {
+    public String getObiewId() {
         return obiewId;
     }
 
-    public void setObiewId(long obiewId) {
+    public void setObiewId(String obiewId) {
         this.obiewId = obiewId;
     }
 
@@ -96,7 +101,7 @@ public class Obiew {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Obiew obiew = (Obiew) o;
-        return getObiewId() == obiew.getObiewId() &&
+        return Objects.equals(getObiewId(), obiew.getObiewId()) &&
                 Objects.equals(getContent(), obiew.getContent()) &&
                 Objects.equals(getLikeList(), obiew.getLikeList()) &&
                 Objects.equals(getCommentList(), obiew.getCommentList());

@@ -1,6 +1,8 @@
 #include <cstdlib>
 
 #include "multi-paxos-service-impl.h"
+#include "time_log.h"
+
 
 namespace obiew {
 
@@ -71,35 +73,20 @@ namespace obiew {
       std::string stmt = "INSERT INTO Users (Name, Password, ProfilePicture, Email, Phone) VALUES (%0q:username, AES_ENCRYPT(%1q:password, UNHEX(SHA2('My secret passphrase',512))), %2q:profile, %3q:email, %4q:phone);";
       mysqlpp::Query query = mysql_conn_.query(stmt);
       query.parse();
-      // mysqlpp::StoreQueryResult result_set = query.store(user.name(), user.password(), user.email(), user.phone());
       auto result = query.execute(user.name(), user.password(),user.profile_picture(), user.email(), user.phone());
       if(result.rows() > 0) {
-        std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE Name=%0q:username AND Password=AES_ENCRYPT(%1q:password, UNHEX(SHA2(%2q:passphrase,%3:hashlen)))";
-        mysqlpp::Query query = mysql_conn_.query(stmt);
-        query.parse();
-        mysqlpp::StoreQueryResult result_set = query.store(user.name(), user.password(), pass_phrase_, hash_len_);
-        if(result_set.size() == 1) {
-          auto it = result_set.begin();
-          mysqlpp::Row row = *it;
-          user.set_user_id(row["UserId"]);
-          user.set_name(row["Name"]);
-          user.set_profile_picture(row["ProfilePicture"]);
-          user.set_email(row["Email"]);
-          user.set_phone(row["Phone"]);
-          user.clear_password();
-          *response->mutable_user() = user;
-          TIME_LOG << response->user().DebugString();
+        auto qurery_status = GetUserByCredentials(&user);
+        if(qurery_status.ok()) {
+          *response->mutable_user() = user;   
+          TIME_LOG << response->user().DebugString();     
         } else {
-          return Status(grpc::StatusCode::NOT_FOUND,
-                    "Mysql query Failed.");
+          return Status(qurery_status.error_code(), qurery_status.error_message());
         }
-        user.clear_password();
-        *response->mutable_user()=user;
       } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql query Failed.");
+        return Status(grpc::StatusCode::ABORTED, "Mysql INSERT Failed.");
       }
     } else {
-      return Status(grpc::StatusCode::ABORTED, "Mysql connection Failed.");
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
     }
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
@@ -119,28 +106,15 @@ namespace obiew {
     }
     User user = request->user();
     if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
-      std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE Name=%0q:username AND Password=AES_ENCRYPT(%1q:password, UNHEX(SHA2(%2q:passphrase,%3:hashlen)))";
-      mysqlpp::Query query = mysql_conn_.query(stmt);
-      query.parse();
-      mysqlpp::StoreQueryResult result_set = query.store(user.name(), user.password(), pass_phrase_, hash_len_);
-      if(result_set.size() == 1) {
-        auto it = result_set.begin();
-        mysqlpp::Row row = *it;
-        user.set_user_id(row["UserId"]);
-          user.set_name(row["Name"]);
-        user.set_profile_picture(row["ProfilePicture"]);
-        user.set_email(row["Email"]);
-        user.set_phone(row["Phone"]);
-        user.clear_password();
-        *response->mutable_user()=user;
-        TIME_LOG << response->user().DebugString();
+      auto qurery_status = GetUserByCredentials(&user);
+      if(qurery_status.ok()) {
+        *response->mutable_user() = user;   
+        TIME_LOG << response->user().DebugString();     
       } else {
-        return Status(grpc::StatusCode::NOT_FOUND,
-                  "Mysql query Failed.");
+        return Status(qurery_status.error_code(), qurery_status.error_message());
       }
     } else {
-      return Status(grpc::StatusCode::ABORTED,
-                  "Mysql connection Failed.");
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
     }
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
@@ -150,7 +124,7 @@ namespace obiew {
     return Status::OK;
   }
 
-    Status MultiPaxosServiceImpl::GetUser(grpc::ServerContext* context, const GetUserRequest* request,
+  Status MultiPaxosServiceImpl::GetUser(grpc::ServerContext* context, const GetUserRequest* request,
     GetUserResponse* response) {
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
@@ -160,36 +134,16 @@ namespace obiew {
     }
     User user = request->user();
     if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
-      std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE UserId=%0q:userid";
-      mysqlpp::Query query = mysql_conn_.query(stmt);
-      query.parse();
-      mysqlpp::StoreQueryResult result_set = query.store(user.user_id());
-      std::string stmt2 = "SELECT Posts,Following,Followers FROM UserStats WHERE UserId=%0q:userid";
-      mysqlpp::Query query2 = mysql_conn_.query(stmt2);
-      query2.parse();
-      mysqlpp::StoreQueryResult result_set2 = query2.store(user.user_id());
-      if(result_set.size() == 1 && result_set2.size() == 1) {
-        auto it = result_set.begin();
-        mysqlpp::Row row = *it;
-        user.set_user_id(row["UserId"]);
-        user.set_name(row["Name"]);
-        user.set_profile_picture(row["ProfilePicture"]);
-        user.set_email(row["Email"]);
-        user.set_phone(row["Phone"]);
-        auto it2 = result_set2.begin();
-        mysqlpp::Row row2 = *it2;
-        user.set_num_posts(row2["Posts"]);
-        user.set_num_following(row2["Following"]);
-        user.set_num_followers(row2["Followers"]);
+      auto get_user_status = GetUserByUserId(&user);
+      auto get_stats_status = GetUserStatsByUserId(&user);
+      if(get_user_status.ok() && get_stats_status.ok()) {
         *response->mutable_user()=user;
         TIME_LOG << response->user().DebugString();
       } else {
-        return Status(grpc::StatusCode::NOT_FOUND,
-                  "Mysql query Failed.");
+        return Status(get_user_status.error_code(), get_user_status.error_message() + get_stats_status.error_message());
       }
     } else {
-      return Status(grpc::StatusCode::ABORTED,
-                  "Mysql connection Failed.");
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
     }
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
@@ -246,6 +200,64 @@ namespace obiew {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
       << "Returning SetPostResponse." << std::endl;
+    }
+    return Status::OK;
+  }
+
+
+
+  Status MultiPaxosServiceImpl::GetUserByCredentials(User* user) {
+    std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE Name=%0q:username AND Password=AES_ENCRYPT(%1q:password, UNHEX(SHA2(%2q:passphrase,%3:hashlen)))";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->name(), user->password(), pass_phrase_, hash_len_);
+    if(result_set.size() == 1) {
+      auto it = result_set.begin();
+      mysqlpp::Row row = *it;
+      user->set_user_id(row["UserId"]);
+      user->set_name(row["Name"]);
+      user->set_profile_picture(row["ProfilePicture"]);
+      user->set_email(row["Email"]);
+      user->set_phone(row["Phone"]);
+      user->clear_password();
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetUserByUserId(User* user) {
+    std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE UserId=%0q:userid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() == 1) {
+      auto it = result_set.begin();
+      mysqlpp::Row row = *it;
+      user->set_user_id(row["UserId"]);
+      user->set_name(row["Name"]);
+      user->set_profile_picture(row["ProfilePicture"]);
+      user->set_email(row["Email"]);
+      user->set_phone(row["Phone"]);
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetUserStatsByUserId(User* user) {
+    std::string stmt = "SELECT Posts,Following,Followers FROM UserStats WHERE UserId=%0q:userid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() == 1) {
+      auto it = result_set.begin();
+      mysqlpp::Row row = *it;
+      user->set_num_posts(row["Posts"]);
+      user->set_num_following(row["Following"]);
+      user->set_num_followers(row["Followers"]);
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
     }
     return Status::OK;
   }

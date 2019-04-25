@@ -58,6 +58,11 @@ namespace obiew {
     std::string pass_phrase_;
     int hash_len_;
 
+    grpc::Status GetUserByCredentials(User* user);
+    grpc::Status GetUserByUserId(User* user);
+    grpc::Status GetUserStatsByUserId(User* user);
+    
+
   };
 
 }  // namespace obiew

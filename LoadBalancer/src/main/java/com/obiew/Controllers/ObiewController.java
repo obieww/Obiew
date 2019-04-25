@@ -12,10 +12,14 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/obiew")
 public class ObiewController {
-    @Autowired
     private ObiewRepository obiewRepository;
-    @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    public ObiewController(ObiewRepository obiewRepository, UserRepository userRepository) {
+        this.obiewRepository = obiewRepository;
+        this.userRepository = userRepository;
+    }
 
     @GetMapping("/{obiewId}")
     public ResponseEntity<Obiew> getById(@PathVariable String obiewId) {

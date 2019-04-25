@@ -6,71 +6,18 @@ package obiew;
 
 message EmptyMessage {}
 
+message ServerConfig {
+    string my_addr = 1;
+    string my_paxos = 2;
+    repeated string replica = 3;
+}
+
 enum OperationType {
     CREATE = 0;
     UPDATE = 1;
     DELETE = 2;
 }
 
-// A User.
-message User {
-    int32 user_id = 1;
-    string password = 2; // TODO: Encryption.
-    string name = 3;
-    int32 profile_picture = 4; // Id for retrieving image.
-    string email = 5;
-    string phone = 6;
-}
-
-message RegisterRequest {
-    User user;
-}
-
-message RegisterResponse {
-    User user;
-}
-
-message LogInRequest {
-    User user;
-}
-
-message LogInResponse {
-    User user;
-}
-
-// Get User Request.
-message GetUserRequest {
-    int32 user_id = 1;
-}
-
-// Get User Response.
-message GetUserResponse {
-    User user = 1;
-}
-
-// Set User Request.
-message SetUserRequest {
-    User user = 1;
-    OperationType operation = 2;
-}
-
-// Get Follow(s) Request.
-message GetFollowsRequest {
-    int32 follower_id = 1;
-    int32 followee_id = 2;
-}
-
-// Get Follow(s) Response.
-message GetFollowsResponse {
-    repeated User user = 1;
-}
-
-// Set Follow Request.
-message SetFollowRequest {
-    int32 follower_id = 1;
-    int32 followee_id = 2;
-    OperationType operation = 3;
-}
 
 // An Obiew Post.
 message Post {
@@ -78,7 +25,7 @@ message Post {
     int32 user_id = 2;
     string content = 3;
     int32 image_id = 4; // Id for image look-up.
-    Timestamp created = 5;
+    string created = 5;
     Post original_post = 6;
     int32 direct_repost_id = 7;
     int32 num_reposts = 8;
@@ -106,6 +53,11 @@ message SetPostRequest {
     OperationType operation = 2;
 }
 
+// Set Post(s) Response.
+message SetPostResponse {
+    Post post = 1;
+}
+
 // UserStat displayed in User's Profile page.
 message UserStat {
     int32 user_id = 1;
@@ -125,13 +77,82 @@ message GetUserStatResponse {
     UserStat user_stat = 1;
 }
 
+// A User.
+message User {
+    int32 user_id = 1;
+    string password = 2; // TODO: Encryption.
+    string name = 3;
+    int32 profile_picture = 4; // Id for retrieving image.
+    string email = 5;
+    string phone = 6;
+    int32 num_posts = 7;
+    int32 num_following = 8;
+    int32 num_followers = 9;
+    repeated Post recent_posts = 10;
+}
+
+message RegisterRequest {
+    User user = 1; // Require: Name, Password, ProfilePicture, Email, Phone
+}
+
+message RegisterResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+message LogInRequest {
+    User user = 1; // Require: Name, Password
+}
+
+message LogInResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+// Get User Request.
+message GetUserRequest {
+    User user = 1; // Require: UserId
+}
+
+// Get User Response.
+message GetUserResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+// Set User Request.
+message SetUserRequest {
+    User user = 1;
+    OperationType operation = 2;
+}
+
+// Set User Response.
+message SetUserResponse {
+    User user = 1;
+}
+
+// Get Follow(s) Request.
+message GetFollowsRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+}
+
+// Get Follow(s) Response.
+message GetFollowsResponse {
+    repeated User user = 1;
+}
+
+// Set Follow Request.
+message SetFollowRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+    OperationType operation = 3;
+}
+
 // A Repost under an Obiew Post.
 message Repost {
     int32 repost_id = 1;
     int32 post_id = 2;
     int32 user_id = 3;
     string content = 4;
-    Timestamp created = 5;
+    string created = 5;
 }
 
 // Get Repost(s) Request.
@@ -150,7 +171,7 @@ message Comment {
     int32 post_id = 2;
     int32 user_id = 3;
     string content = 4;
-    Timestamp created = 5;
+    string created = 5;
 }
 
 // Get Comment(s) Request.
@@ -177,7 +198,7 @@ message Like {
     int32 like_id = 1;
     int32 post_id = 2;
     int32 user_id = 3;
-    Timestamp created = 4;
+    string created = 4;
 }
 
 // Get Like(s) Request.
@@ -209,7 +230,7 @@ service Obiew {
 
     rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
 
-    rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
+    // rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
 
     rpc GetFollows (GetFollowsRequest) returns (GetFollowsResponse) {}
 
@@ -221,13 +242,29 @@ service Obiew {
 
     rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
 
-    rpc SetUser (SetUserRequest) returns (EmptyMessage) {}
+    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
     rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
 
-    rpc SetPost (SetPostRequest) returns (EmptyMessage) {}
+    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 
     rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
 
     rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
+}
+
+
+service MultiPaxos {
+    
+    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+
+    rpc LogIn (LogInRequest) returns (LogInResponse) {}
+
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+
+    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {}
+
+    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
+
+    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 }

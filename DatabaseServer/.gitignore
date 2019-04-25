@@ -1,3 +1,5 @@
+# System reliable files
+Makefile
 
 # Prerequisites
 *.d
@@ -7,6 +9,10 @@
 *.lo
 *.o
 *.obj
+*.grpc.pb.cc
+*.grpc.pb.h
+*.pb.cc
+*.pb.h
 
 # Precompiled Headers
 *.gch
@@ -31,3 +37,5 @@
 *.exe
 *.out
 *.app
+client
+server

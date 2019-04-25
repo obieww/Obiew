@@ -18,7 +18,7 @@ HOST_SYSTEM = $(shell uname | cut -f 1 -d_)
 SYSTEM ?= $(HOST_SYSTEM)
 CXX = g++
 CPPFLAGS += `pkg-config --cflags protobuf grpc`
-CXXFLAGS += -std=c++11 -I/usr/local/Cellar/mysql/8.0.15/include/mysql -I/usr/local/Cellar/mysql++/3.2.3_2/include/mysql++
+CXXFLAGS += -std=c++11 -I/usr/include/mysql -I/usr/include/mysql++
 ifeq ($(SYSTEM),Darwin)
 LDFLAGS += -L/usr/local/lib `pkg-config --libs protobuf grpc++ grpc`\
            -lgrpc++_reflection\

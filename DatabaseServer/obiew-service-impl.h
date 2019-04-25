@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 #include <thread>
 #include <utility>
 
@@ -35,10 +34,22 @@ namespace obiew {
     grpc::Status LogIn(grpc::ServerContext* context, const LogInRequest* request,
      LogInResponse* response) override;
 
+    grpc::Status GetUser(grpc::ServerContext* context, const GetUserRequest* request,
+     GetUserResponse* response) override;
+
+    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
+     GetPostsResponse* response) override;
+
+    grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
+     SetUserResponse* response) override;
+
+    grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
+     SetPostResponse* response) override;
+
   private:
     const std::string obiew_address_;
     const std::string my_paxos_address_;
-    std::shared_mutex log_mtx_;
+    std::mutex log_mtx_;
     PaxosStubsMap* paxos_stubs_map_;
 
     grpc::Status ForwardToCoordinator(
@@ -47,6 +58,18 @@ namespace obiew {
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const LogInRequest& request,
     LogInResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetUserRequest& request,
+    GetUserResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostsRequest& request,
+    GetPostsResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetUserRequest& request,
+    SetUserResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetPostRequest& request,
+    SetPostResponse* response);
     template <typename Request, typename Response>
     grpc::Status RequestFlow(const Request& request, Response* response);
 

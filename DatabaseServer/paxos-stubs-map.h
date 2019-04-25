@@ -5,7 +5,6 @@
 #include <map>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
 #include <string>
 #include <utility>
 
@@ -27,9 +26,9 @@ namespace obiew {
 
   private:
     PaxosStubs stubs_;
-    std::shared_mutex stubs_mtx_;
+    std::mutex stubs_mtx_;
     std::string coordinator_;
-    std::shared_mutex coordinator_mtx_;
+    std::mutex coordinator_mtx_;
   };
 
 }  // namespace obiew

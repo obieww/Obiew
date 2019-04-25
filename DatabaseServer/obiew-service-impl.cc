@@ -6,7 +6,6 @@
 #include <memory>
 #include <mutex>
 #include <set>
-#include <shared_mutex>
 #include <thread>
 #include <utility>
 
@@ -24,18 +23,26 @@ namespace obiew {
   using obiew::RegisterResponse;
   using obiew::LogInRequest;
   using obiew::LogInResponse;
+  using obiew::GetUserRequest;
+  using obiew::GetUserResponse;
+  using obiew::GetPostsRequest;
+  using obiew::GetPostsResponse;
+  using obiew::SetUserRequest;
+  using obiew::SetUserResponse;
+  using obiew::SetPostRequest;
+  using obiew::SetPostResponse;
 
   Status ObiewServiceImpl::Register(grpc::ServerContext* context, const RegisterRequest* request,
     RegisterResponse* response) {
     {
-      std::unique_lock<std::shared_mutex> writer_lock(log_mtx_);
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Received RegisterRequest."
       << std::endl;
     }
     Status get_status = RequestFlow(*request, response);
     {
-      std::unique_lock<std::shared_mutex> writer_lock(log_mtx_);
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Returning RegisterResponse." << std::endl;
     }
@@ -45,16 +52,84 @@ namespace obiew {
   Status ObiewServiceImpl::LogIn(grpc::ServerContext* context, const LogInRequest* request,
     LogInResponse* response) {
     {
-      std::unique_lock<std::shared_mutex> writer_lock(log_mtx_);
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Received LogInRequest."
       << std::endl;
     }
     Status get_status = RequestFlow(*request, response);
     {
-      std::unique_lock<std::shared_mutex> writer_lock(log_mtx_);
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Returning LogInResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetUser(grpc::ServerContext* context, const GetUserRequest* request,
+    GetUserResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetUserRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetUserResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
+    GetPostsResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetPostsRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetPostsResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::SetUser(grpc::ServerContext* context, const SetUserRequest* request,
+    SetUserResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received SetUserRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning SetUserResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::SetPost(grpc::ServerContext* context, const SetPostRequest* request,
+    SetPostResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received SetPostRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning SetPostResponse." << std::endl;
     }
     return get_status;
   }
@@ -71,6 +146,34 @@ namespace obiew {
     ClientContext* cc, MultiPaxos::Stub* stub, const LogInRequest& request,
     LogInResponse* response) {
     return stub->LogIn(cc, request, response);
+  }
+
+  // Forward GetUserRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetUserRequest& request,
+    GetUserResponse* response) {
+    return stub->GetUser(cc, request, response);
+  }
+
+  // Forward GetPostsRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetPostsRequest& request,
+    GetPostsResponse* response) {
+    return stub->GetPosts(cc, request, response);
+  }
+
+  // Forward SetUserRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const SetUserRequest& request,
+    SetUserResponse* response) {
+    return stub->SetUser(cc, request, response);
+  }
+
+  // Forward SetPostRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const SetPostRequest& request,
+    SetPostResponse* response) {
+    return stub->SetPost(cc, request, response);
   }
 
 template <typename Request, typename Response>

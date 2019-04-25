@@ -17,7 +17,7 @@ DROP TABLE IF EXISTS Users;
 # Create Users.
 CREATE TABLE Users (
     UserId INT AUTO_INCREMENT,
-    Password VARCHAR(255),
+    Password VARBINARY(255),
     Name VARCHAR(255),
     ProfilePicture INT,
     Email VARCHAR(255),

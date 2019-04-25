@@ -4,7 +4,7 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <shared_mutex>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -60,13 +60,14 @@ int main(int argc, char** argv) {
   std::map<std::string, std::unique_ptr<obiew::MultiPaxos::Stub>> stubs;
   for (int i = 0; i < server_config.replica_size(); ++i) {
     const std::string& paxos_address = server_config.replica(i);
-    stubs[paxos_address] = std::make_unique<obiew::MultiPaxos::Stub>(
-      grpc::CreateChannel(paxos_address, grpc::InsecureChannelCredentials()));
+
+    stubs[paxos_address] = std::move(std::unique_ptr<obiew::MultiPaxos::Stub>(obiew::MultiPaxos::NewStub(
+      grpc::CreateChannel(paxos_address, grpc::InsecureChannelCredentials()))));
     TIME_LOG << "Adding " << paxos_address << " to the Paxos stubs list."
     << std::endl;
   }
 
-  obiew::PaxosStubsMap paxos_stubs_map(std::move(stubs));\
+  obiew::PaxosStubsMap paxos_stubs_map(std::move(stubs));
   const std::string& my_obiew_address = server_config.my_addr();
   const std::string& my_paxos_address = server_config.my_paxos();
 

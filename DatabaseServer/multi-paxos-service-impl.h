@@ -5,10 +5,13 @@
 #include <vector>
 
 #include <grpcpp/grpcpp.h>
+#include <mysql++.h>
+#include <mysql.h>
 
 #include "obiew.grpc.pb.h"
 #include "paxos-stubs-map.h"
 #include "time_log.h"
+
 
 namespace obiew {
 
@@ -17,9 +20,7 @@ namespace obiew {
     // Construction method.
     MultiPaxosServiceImpl(
       PaxosStubsMap* paxos_stubs_map, 
-      const std::string& my_paxos_address)
-    : paxos_stubs_map_(paxos_stubs_map),
-    my_paxos_address_(my_paxos_address) {}
+      const std::string& my_paxos_address);
     
     grpc::Status Initialize();
 
@@ -31,12 +32,32 @@ namespace obiew {
     grpc::Status LogIn(grpc::ServerContext* context, const LogInRequest* request,
      LogInResponse* response) override;
 
+    grpc::Status GetUser(grpc::ServerContext* context, const GetUserRequest* request,
+     GetUserResponse* response) override;
+
+    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
+     GetPostsResponse* response) override;
+
+    grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
+     SetUserResponse* response) override;
+
+    grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
+     SetPostResponse* response) override;
+
 
 
   private:
     const std::string my_paxos_address_;
-    std::shared_mutex log_mtx_;
+    std::mutex log_mtx_;
     PaxosStubsMap* paxos_stubs_map_;
+    mysqlpp::Connection mysql_conn_;
+    std::string db_name_;
+    std::string mysql_server_;
+    std::string mysql_user_;
+    std::string mysql_password_;
+    std::string pass_phrase_;
+    int hash_len_;
+
   };
 
 }  // namespace obiew

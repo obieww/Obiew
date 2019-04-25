@@ -60,6 +60,11 @@ message SetUserRequest {
     OperationType operation = 2;
 }
 
+// Set User Response.
+message SetUserResponse {
+    User user = 1;
+}
+
 // Get Follow(s) Request.
 message GetFollowsRequest {
     int32 follower_id = 1;
@@ -110,6 +115,11 @@ message GetPostsResponse {
 message SetPostRequest {
     Post post = 1;
     OperationType operation = 2;
+}
+
+// Set Post(s) Response.
+message SetPostResponse {
+    Post post = 1;
 }
 
 // UserStat displayed in User's Profile page.
@@ -215,7 +225,7 @@ service Obiew {
 
     rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
 
-    rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
+    // rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
 
     rpc GetFollows (GetFollowsRequest) returns (GetFollowsResponse) {}
 
@@ -227,11 +237,11 @@ service Obiew {
 
     rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
 
-    rpc SetUser (SetUserRequest) returns (EmptyMessage) {}
+    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
     rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
 
-    rpc SetPost (SetPostRequest) returns (EmptyMessage) {}
+    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 
     rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
 
@@ -244,4 +254,12 @@ service MultiPaxos {
     rpc Register (RegisterRequest) returns (RegisterResponse) {}
 
     rpc LogIn (LogInRequest) returns (LogInResponse) {}
+
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+
+    rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {}
+
+    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
+
+    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 }

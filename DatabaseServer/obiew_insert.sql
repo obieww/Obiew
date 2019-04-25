@@ -8,9 +8,11 @@ USE Obiew;
 -- DELETE FROM Posts WHERE PostId != 0;
 -- DELETE FROM Users WHERE UserId != 0;
 
-INSERT INTO Users (Name) VALUES ("cesca");
-INSERT INTO Users (Name) VALUES ("fibi");
-INSERT INTO Users (Name) VALUES ("hugh");
+INSERT INTO Users (Name, Password) VALUES ("cesca", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
+INSERT INTO Users (Name, Password) VALUES ("fibi", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
+INSERT INTO Users (Name, Password) VALUES ("hugh", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))));
+
+SELECT * FROM Users WHERE AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512)))=Password;
 
 INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 2);
 INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 3);

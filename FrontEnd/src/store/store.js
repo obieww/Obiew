@@ -3,7 +3,7 @@ import reducers from './reducers'
 
 const defaultState = {
   username: '',
-  page: 'login',
+  page: 'register',
   obiews: [
     {
       userId: 0,

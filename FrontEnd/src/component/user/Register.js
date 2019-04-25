@@ -18,6 +18,7 @@ class Register extends Component {
     this.onLastnameChange = this.onLastnameChange.bind(this);
     this.onEmailChange = this.onEmailChange.bind(this);
     this.onPhoneChange = this.onPhoneChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
   onUsernameChange(e) {
@@ -56,7 +57,25 @@ class Register extends Component {
     })
   }
 
-  onSubmitSignIn() {
+  onSubmit() {
+    const {
+      email,
+      password,
+      username,
+    } = this.state;
+    fetch('https://secure-eyrie-24516.herokuapp.com/api/user/register', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        username: username,
+      })
+    })
+    .then(response => response.json())
+    .then(user => {
+      console.log(user)
+    })
   }
 
   render() {
@@ -99,7 +118,7 @@ class Register extends Component {
               </fieldset>
               <div className="db mv3">
                 <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f4 dib br2" 
-                  onClick={this.onSubmitSignIn} type="submit" value="Register"/>
+                  onClick={this.onSubmit} type="submit" value="Register"/>
               </div>
             </div>
           </main>

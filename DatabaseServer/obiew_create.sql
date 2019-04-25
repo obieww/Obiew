@@ -19,7 +19,7 @@ CREATE TABLE Users (
     UserId INT AUTO_INCREMENT,
     Password VARBINARY(255),
     Name VARCHAR(255),
-    ProfilePicture INT,
+    ProfilePicture INT DEFAULT -1,
     Email VARCHAR(255),
     Phone VARCHAR(20),
     CONSTRAINT pk_Users_UserId PRIMARY KEY (UserId),

@@ -18,70 +18,6 @@ enum OperationType {
     DELETE = 2;
 }
 
-// A User.
-message User {
-    int32 user_id = 1;
-    string password = 2; // TODO: Encryption.
-    string name = 3;
-    int32 profile_picture = 4; // Id for retrieving image.
-    string email = 5;
-    string phone = 6;
-}
-
-message RegisterRequest {
-    User user = 1;
-}
-
-message RegisterResponse {
-    User user = 1;
-}
-
-message LogInRequest {
-    User user = 1;
-}
-
-message LogInResponse {
-    User user = 1;
-}
-
-// Get User Request.
-message GetUserRequest {
-    int32 user_id = 1;
-}
-
-// Get User Response.
-message GetUserResponse {
-    User user = 1;
-}
-
-// Set User Request.
-message SetUserRequest {
-    User user = 1;
-    OperationType operation = 2;
-}
-
-// Set User Response.
-message SetUserResponse {
-    User user = 1;
-}
-
-// Get Follow(s) Request.
-message GetFollowsRequest {
-    int32 follower_id = 1;
-    int32 followee_id = 2;
-}
-
-// Get Follow(s) Response.
-message GetFollowsResponse {
-    repeated User user = 1;
-}
-
-// Set Follow Request.
-message SetFollowRequest {
-    int32 follower_id = 1;
-    int32 followee_id = 2;
-    OperationType operation = 3;
-}
 
 // An Obiew Post.
 message Post {
@@ -139,6 +75,75 @@ message GetUserStatRequest {
 // Get UserStat Response.
 message GetUserStatResponse {
     UserStat user_stat = 1;
+}
+
+// A User.
+message User {
+    int32 user_id = 1;
+    string password = 2; // TODO: Encryption.
+    string name = 3;
+    int32 profile_picture = 4; // Id for retrieving image.
+    string email = 5;
+    string phone = 6;
+    int32 num_posts = 7;
+    int32 num_following = 8;
+    int32 num_followers = 9;
+    repeated Post recent_posts = 10;
+}
+
+message RegisterRequest {
+    User user = 1; // Require: Name, Password, ProfilePicture, Email, Phone
+}
+
+message RegisterResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+message LogInRequest {
+    User user = 1; // Require: Name, Password
+}
+
+message LogInResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+// Get User Request.
+message GetUserRequest {
+    User user = 1; // Require: UserId
+}
+
+// Get User Response.
+message GetUserResponse {
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+}
+
+// Set User Request.
+message SetUserRequest {
+    User user = 1;
+    OperationType operation = 2;
+}
+
+// Set User Response.
+message SetUserResponse {
+    User user = 1;
+}
+
+// Get Follow(s) Request.
+message GetFollowsRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+}
+
+// Get Follow(s) Response.
+message GetFollowsResponse {
+    repeated User user = 1;
+}
+
+// Set Follow Request.
+message SetFollowRequest {
+    int32 follower_id = 1;
+    int32 followee_id = 2;
+    OperationType operation = 3;
 }
 
 // A Repost under an Obiew Post.

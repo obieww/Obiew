@@ -20,6 +20,8 @@ using obiew::RegisterRequest;
 using obiew::RegisterResponse;
 using obiew::LogInRequest;
 using obiew::LogInResponse;
+using obiew::GetUserRequest;
+using obiew::GetUserResponse;
 using obiew::Obiew;
 // #define TIME_LOG() std::cout << TimeNow();
 
@@ -44,6 +46,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
+      TIME_LOG << response.user().DebugString();
       TIME_LOG << "UserId " << response.user().user_id() << " is registered!" << std::endl;
     }
   }
@@ -62,7 +65,26 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
+      TIME_LOG << response.user().DebugString();
       TIME_LOG << "UserId " << response.user().user_id() << " is logged in!" << std::endl;
+    }
+  }
+
+  void GetUser(int user_id) {
+    // Context for the client.
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    GetUserRequest request;
+    *request.mutable_user() = user;
+    GetUserResponse response;
+    Status status = stub_->GetUser(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << response.user().DebugString();
+      TIME_LOG << "UserId " << response.user().user_id() << " is found!" << std::endl;
     }
   }
 
@@ -105,6 +127,10 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: LogIn " << args[1]
                << std::endl;
       client.LogIn(args[1], args[2]);
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "getuser") {
+      TIME_LOG << "Sending request: GetUser " << args[1]
+               << std::endl;
+      client.GetUser(std::stoi(args[1]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

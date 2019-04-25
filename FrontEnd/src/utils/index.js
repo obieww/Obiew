@@ -6,6 +6,8 @@ utils.defaultObiew = (cards, strMsg) => ({
     pic: "../../images/person_default.png",
     username: "Anonymous",
     timestamp: Date.now(),
+    hasReobiewed: false,
+    reobiews: [],
     likes: [], 
     comments: [], 
     obiew: strMsg
@@ -23,6 +25,7 @@ utils.defaultObiews = [
         pic: "../../images/person_default.png",
         username: "Anonymous",
         timestamp: Date.now(),
+        hasReobiewed: false,
         likes: [
             {
                 userId: 1,
@@ -55,7 +58,14 @@ utils.defaultObiews = [
                 timestamp: Date.now(),
                 reply: "Words cannot describe the tremendous sorrow for the great loss of the innocents."
             }
-        ], 
+        ],
+        reobiews: [
+            {
+                userId: 1,
+                obiewId: 1,
+                timestamp: Date.now(),
+            }
+        ],
         obiew: "The number of people who died in the Easter Sunday attacks in Sri Lanka has risen sharply to 290, police say."
     },
     {
@@ -71,6 +81,7 @@ utils.defaultObiews = [
                 obiewId: 1,
             }
         ], 
+        hasReobiewed: false,
         comments: [
             {
                 commentId: 2,
@@ -80,6 +91,7 @@ utils.defaultObiews = [
                 reply: "Words cannot describe the tremendous sorrow for the great loss of the innocents."
             }
         ], 
+        reobiews: [],
         obiew: "The number of people who died in the Easter Sunday attacks in Sri Lanka has risen sharply to 290, police say."
     }
 ]

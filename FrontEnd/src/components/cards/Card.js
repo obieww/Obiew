@@ -8,11 +8,12 @@ class Card extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      card: props.card,
+      obiew: props.obiew,
       liked: false,
       commented: false,
       showComment: false,
       inputMessage: "",
+      hasReobiewed: false,
     };
     this.onClickRightBtn = this.onClickRightBtn.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
@@ -27,20 +28,20 @@ class Card extends Component {
 
   onClickRightBtn(rightBtn) {
     if (rightBtn.key === "like") {
-      let likes = this.state.card.likes
+      let likes = this.state.obiew.likes
       if (!this.state.liked) {
         likes.push({
           likeId: 100,
           userId: 100,
-          obiewId: this.state.card.obiewId
+          obiewId: this.state.obiew.obiewId
         })
       } else {
         likes.pop();
       }
       this.setState((prevState, props) => ({
         ...prevState,
-        card: {
-          ...prevState.card,
+        obiew: {
+          ...prevState.obiew,
           likes: likes,
         },
         liked: !prevState.liked,
@@ -51,57 +52,79 @@ class Card extends Component {
         commented: !prevState.commented,
         showComment: !prevState.showComment,
       }));
+    } else if (rightBtn.key === 'reobiew') {
+      if (!this.state.hasReobiewed) {
+        let reobiews = this.state.obiew.reobiews;
+        reobiews.unshift(            {
+          userId: 1,
+          obiewId: 1,
+          timestamp: Date.now(),
+        })
+        this.setState((prevState, props) => ({
+          ...prevState,
+          obiew: {
+            ...prevState.obiew,
+            reobiews: reobiews,
+          },
+          hasReobiewed: true,
+        }));
+      }
     }
   }
 
   onCreateNewReply(strMsg) {
-    let comments = this.state.card.comments;
+    let comments = this.state.obiew.comments;
     comments.unshift({
       commentId: 100,
-      obiewId: this.state.card.obiewId,
-      userId: this.state.card.userId,
+      obiewId: this.state.obiew.obiewId,
+      userId: this.state.obiew.userId,
       timestamp: Date.now(),
       reply: strMsg,
     });
     this.setState((prevState, props) => ({
       ...prevState,
-      card: {
-        ...prevState.card,
+      obiew: {
+        ...prevState.obiew,
         comments: comments,
       }
     }))
   }
 
   render() {
-    let card = {
-      pic: this.state.card.pic,
-      username: this.state.card.username,
-      timestamp: this.state.card.timestamp,
-      obiew: this.state.card.obiew,
+    let obiew = {
+      pic: this.state.obiew.pic,
+      username: this.state.obiew.username,
+      timestamp: this.state.obiew.timestamp,
+      obiew: this.state.obiew.obiew,
       rightBtns: [
         {
           key: "like",
-          label: this.state.card.likes.length,
+          label: this.state.obiew.likes.length,
           icon: "glyphicon-heart"
         },
         {
           key: "comment",
-          label: this.state.card.comments.length,
+          label: this.state.obiew.comments.length,
           icon: "glyphicon-comment"
-        }
+        },
+        {
+          key: "reobiew",
+          label: this.state.obiew.reobiews.length,
+          icon: "glyphicon-new-window"
+        },
       ]
     };
 
     return (
       <div className="panel-default panel-custom">
         <div className="obiew">
-          <Obiew info={card} onClickRightBtn={this.onClickRightBtn}/>
+          <Obiew info={obiew} onClickRightBtn={this.onClickRightBtn}/>
         </div>
         {
           this.state.showComment ? 
           <div className="panel-body input">
             <Post msg="Obiew your reply" onClick={this.onCreateNewReply} ref={e => this.inputArea = e}/>
-            <Reply comments={this.state.card.comments} />
+            <Reply comments={this.state.obiew.comments} />
           </div> :
           null
         }

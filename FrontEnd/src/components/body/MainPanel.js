@@ -71,7 +71,7 @@ class MainPanel extends Component {
           null
         }
         {
-          obiews.map(card => <Card key={card.obiewId} card={card} />)
+          obiews.map(obiew=> <Card key={obiew.obiewId} obiew={obiew} />)
         }
         {
           showAnchor ?

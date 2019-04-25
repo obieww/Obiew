@@ -1,8 +1,13 @@
 import constants from './constants'
 
-export const changeUser = userId => ({
+export const changePage = page => ({
+  type: constants.CHANGE_PAGE,
+  page,
+})
+
+export const changeUser = username => ({
   type: constants.CHANGE_USER,
-  userId,
+  username,
 })
 
 export const createNewObiew = obiew => ({
@@ -22,8 +27,8 @@ export const createNewLike = (obiewId, like) => ({
   like
 })
 
-export const deleteLike = (obiewId, like) => ({
+export const deleteLike = (obiewId, userId) => ({
   type: constants.DELETE_LIKE,
   obiewId,
-  like,
+  userId,
 })

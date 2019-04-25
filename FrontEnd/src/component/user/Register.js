@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import './Register.less'
+import './user.less'
 
 class Register extends Component {
   constructor(props) {

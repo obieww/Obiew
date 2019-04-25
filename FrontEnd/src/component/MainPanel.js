@@ -1,27 +1,21 @@
 import React, {Component} from "react";
-import Post from "@/components/common/Post.js";
-import Card from "@/components/cards/Card.js";
-import utils from "@/utils";
+import Post from "./card/Post.js";
+import Card from "../container/CardContainer.js";
 import "./MainPanel.less";
 
 class MainPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: 'Anonymous',
-      hasNewMsg: true,
+      // hasNewMsg: true,
       showAnchor: false,
-      obiews: []
     };
-    this.onShowNewMessage = this.onShowNewMessage.bind(this);
+    // this.onShowNewMessage = this.onShowNewMessage.bind(this);
     this.onMousewheel = this.onMousewheel.bind(this);
     this.onCreateNewObiew = this.onCreateNewObiew.bind(this);
   }
 
   componentWillMount() {
-    this.setState({
-      obiews: utils.defaultObiews,
-    });
     window.addEventListener("scroll", this.onMousewheel);
   }
 
@@ -35,52 +29,70 @@ class MainPanel extends Component {
     });
   }
 
-  onShowNewMessage(e) {
-    let obiews = this.state.obiews.slice(0);
-    obiews.unshift(utils.defaultObiew(obiews, "new message"))
-    this.setState({
-      obiews: obiews
-    })
-    this.setState({
-      hasNewMsg: false
-    });
-    window.scrollTo(0, 0);
-  }
+  // onShowNewMessage(e) {
+  //   let obiews = this.props.obiews.slice(0);
+  //   obiews.unshift(utils.defaultObiew(obiews, "new message"))
+  //   this.setState({
+  //     obiews: obiews
+  //   })
+  //   this.setState({
+  //     hasNewMsg: false
+  //   });
+  //   window.scrollTo(0, 0);
+  // }
 
-  onCreateNewObiew(strMsg) {
-    let obiews = this.state.obiews.slice(0);
-    obiews.unshift(utils.defaultObiew(obiews, strMsg));
+  onCreateNewObiew(msg) {
+    const {
+      obiews,
+      onCreateNewObiew,
+    } = this.props
+    onCreateNewObiew({
+      userId: obiews.length + 1,
+      obiewId: obiews.length + 1,
+      pic: "../../images/person_default.png",
+      username: "Anonymous",
+      timestamp: Date.now(),
+      hasReobiewed: false,
+      reobiews: [],
+      likes: [], 
+      comments: [], 
+      obiew: msg,
+    });
     this.setState({
-      obiews: obiews,
-    })
+      inputMessage: ""
+    });
   }
 
   render() {
     const {
+      showAnchor,
+    } = this.state;
+    const {
       obiews,
-      showAnchor
-    } = this.state
+    } = this.props;
     return (
       <div className="main-content row col-md-8">
-        <Post msg="Tell the world what's happening" onClick={this.onCreateNewObiew} ref={e => this.inputArea = e}/>
-        {
+        <Post
+          msg="Tell the world what's happening"
+          onClick={this.onCreateNewObiew} />
+        {/*
           this.state.hasNewMsg ?
           <div className='panel-info panel-heading new-info' onClick={this.onShowNewMessage}>
             <span>See more obiews</span>
           </div> :
           null
-        }
+        */}
         {
-          obiews.map(obiew=> <Card key={obiew.obiewId} obiew={obiew} />)
+          obiews.map(obiew => <Card key={obiew.obiewId} obiew={obiew} />)
         }
         {
           showAnchor ?
-          <a 
+          <div
             className="anchor" 
             v-show="showAnchor"
             onClick={() => window.scrollTo(0, 0)}>
             <span className="glyphicon glyphicon-chevron-up" />
-            </a> :
+          </div> :
           null
         }
       </div>

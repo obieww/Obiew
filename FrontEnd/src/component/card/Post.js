@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Logo from "@/images/logo.png";
+import Logo from "../../images/icon.png";
 import "./Post.less";
 
 class Post extends Component {
@@ -9,19 +9,11 @@ class Post extends Component {
       inputMessage: "",
     };
     this.onInputChange = this.onInputChange.bind(this);
-    this.onClick = this.onClick.bind(this);
   }
 
   onInputChange(e) {
     this.setState({
       inputMessage: e.target.value
-    });
-  }
-
-  onClick(e) {
-    this.props.onClick && this.props.onClick(this.state.inputMessage);
-    this.setState({
-      inputMessage: ""
     });
   }
 
@@ -36,13 +28,14 @@ class Post extends Component {
             className="form-control input-style"
             value={inputMessage}
             placeholder={this.props.msg}
-            onChange={this.onInputChange} />
+            onChange={e => this.setState({ inputMessage: e.target.value})} />
         </div>
         <div className="footer-custom">
-          <a className={"btn grow" + (inputMessage === "" ? " disabled" : "")}
-            onClick={this.onClick}>
+          <div
+            className={"btn grow" + (inputMessage === "" ? " disabled" : "")}
+            onClick={() => this.props.onClick(this.state.inputMessage)}>
             <img className="logo" src={Logo} alt="post"/>
-          </a>
+          </div>
         </div>
       </div>
     );

@@ -1,5 +1,5 @@
 import React, {Component} from "react";
-import Obiew from "@/components/common/Obiew.js";
+import Obiew from "./Obiew.js";
 
 class Reply extends Component {
   render() {

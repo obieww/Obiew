@@ -1,15 +1,14 @@
-@import "../common/const.less";
 .main-navigation {
   position: fixed;
   top: 0px;
   z-index: 100;
   width: 100%;
-  height: @BodyPaddingTopo;
-  line-height: @BodyPaddingTopo;
+  height: 56px;
+  line-height: 56px;
   background-image: linear-gradient(to bottom right, rgba(174,61,132,0.8),rgba(86,153,187,0.8));
 
   .rightContent {
-    width: calc(~"100% - @{logoWidth} - 10px");
+    width: calc(~"100% - 154px");
     float: left;
     margin-left: 66px;
     font-size: 1.2em;
@@ -27,9 +26,6 @@
     .nav-item:hover {
       cursor: pointer;
       text-decoration: none;
-      color: #FFF;
-    }
-    .nav-item:active {
       color: #FFF;
     }
     .active {

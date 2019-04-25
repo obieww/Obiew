@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import './user.less';
 
 class Login extends Component {
   constructor(props) {
@@ -29,7 +30,7 @@ class Login extends Component {
       <article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center" style={{backgroundColor:'rgba(255,255,255,0.2)'}}>
         <main className="pa4 black-80">
           <div className="measure">
-            <legend className="db f2 fw6 ph0 mh0">Sign In</legend>
+            <legend className="db f2 fw6 ph0 mh0">Log In</legend>
             <fieldset id="sign_up" className="ba b--transparent ph0 mh0">
               <div className="mv3">
                 <label className="db fw6 lh-copy f4" htmlFor="email-address">Email</label>
@@ -44,7 +45,7 @@ class Login extends Component {
             </fieldset>
             <div className="db mv3">
               <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f4 dib br2" 
-                onClick={this.onSubmitSignIn} type="submit" value="Sign In"/>
+                onClick={this.onSubmitSignIn} type="submit" value="Login"/>
             </div>
           </div>
         </main>

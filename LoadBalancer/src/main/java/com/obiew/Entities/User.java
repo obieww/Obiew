@@ -1,5 +1,8 @@
 package com.obiew.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -17,7 +20,18 @@ public class User {
     private String username;
     private String password;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Obiew> obiewList;
+    @ManyToMany
+    @JoinTable(
+            joinColumns = @JoinColumn(name = "followingId"),
+            inverseJoinColumns = @JoinColumn(name = "followerId")
+    )
+    @JsonManagedReference
+    private Set<User> followingList;
+    @ManyToMany(mappedBy = "followingList")
+    @JsonBackReference
+    private Set<User> followerList;
 
     public User() {
     }
@@ -26,11 +40,18 @@ public class User {
         this.username = username;
         this.password = password;
         this.obiewList = new LinkedList<>();
+        this.followerList = new HashSet<>();
+        this.followingList = new HashSet<>();
     }
 
     public void addObiew(Obiew obiew) {
         obiewList.add(obiew);
         obiew.setUser(this);
+    }
+
+    public void addFollowing(User following) {
+        followingList.add(following);
+        following.followerList.add(this);
     }
 
     public String getUserId() {
@@ -64,6 +85,23 @@ public class User {
     public void setObiewList(List<Obiew> obiewList) {
         this.obiewList = obiewList;
     }
+
+    public Set<User> getFollowingList() {
+        return followingList;
+    }
+
+    public void setFollowingList(Set<User> followingList) {
+        this.followingList = followingList;
+    }
+
+    public Set<User> getFollowerList() {
+        return followerList;
+    }
+
+    public void setFollowerList(Set<User> followerList) {
+        this.followerList = followerList;
+    }
+
 
     @Override
     public boolean equals(Object o) {

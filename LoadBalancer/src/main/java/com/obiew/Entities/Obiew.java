@@ -1,5 +1,6 @@
 package com.obiew.Entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.GenericGenerator;
 
@@ -18,7 +19,7 @@ public class Obiew {
     private String obiewId;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "userId")
-    @JsonIgnore
+    @JsonBackReference
     private User user;
     private String content;
     @OneToMany(mappedBy = "obiew", cascade = CascadeType.ALL, orphanRemoval = true)

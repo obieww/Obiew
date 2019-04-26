@@ -49,6 +49,15 @@ namespace obiew {
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
 
+    grpc::Status SetLike(grpc::ServerContext* context, const SetLikeRequest* request,
+     SetLikeResponse* response) override;
+
+    grpc::Status SetComment(grpc::ServerContext* context, const SetCommentRequest* request,
+     SetCommentResponse* response) override;
+
+    grpc::Status SetFollow(grpc::ServerContext* context, const SetFollowRequest* request,
+     SetFollowResponse* response) override;
+
     grpc::Status GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
      GetFollowersResponse* response) override;
 
@@ -88,6 +97,15 @@ namespace obiew {
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetPostRequest& request,
     SetPostResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetLikeRequest& request,
+    SetLikeResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetCommentRequest& request,
+    SetCommentResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetFollowRequest& request,
+    SetFollowResponse* response);
     template <typename Request, typename Response>
     grpc::Status RequestFlow(const Request& request, Response* response);
 

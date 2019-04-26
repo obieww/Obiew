@@ -216,7 +216,7 @@ message SetLikeRequest {
 }
 
 // Set Like Response.
-message SetLikesResponse {
+message SetLikeResponse {
     Like like = 1;
 }
 
@@ -227,7 +227,7 @@ message SetCommentRequest {
 }
 
 // Set Comment Response.
-message SetCommentsResponse {
+message SetCommentResponse {
     Comment comment = 1;
 }
 
@@ -243,6 +243,7 @@ message SetFollowRequest {
 message SetFollowResponse {
     User follower = 1;
     User followee= 2;
+    string created = 3;
 }
 
 // // Get Like(s) Request.
@@ -286,13 +287,13 @@ service Obiew {
 
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
-    rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
-
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 
-    rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
+    rpc SetComment (SetCommentRequest) returns (SetCommentResponse) {}
 
-    rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
+    rpc SetLike (SetLikeRequest) returns (SetLikeResponse) {}
+
+    rpc SetFollow (SetFollowRequest) returns (SetFollowResponse) {}
 }
 
 
@@ -311,6 +312,12 @@ service MultiPaxos {
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
+
+    rpc SetComment (SetCommentRequest) returns (SetCommentResponse) {}
+
+    rpc SetLike (SetLikeRequest) returns (SetLikeResponse) {}
+
+    rpc SetFollow (SetFollowRequest) returns (SetFollowResponse) {}
 
     rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
 

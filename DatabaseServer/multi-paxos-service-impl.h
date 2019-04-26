@@ -44,6 +44,15 @@ namespace obiew {
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
 
+    grpc::Status SetLike(grpc::ServerContext* context, const SetLikeRequest* request,
+     SetLikeResponse* response) override;
+
+    grpc::Status SetComment(grpc::ServerContext* context, const SetCommentRequest* request,
+     SetCommentResponse* response) override;
+
+    grpc::Status SetFollow(grpc::ServerContext* context, const SetFollowRequest* request,
+     SetFollowResponse* response) override;
+
     grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
      GetPostResponse* response) override;
 
@@ -72,10 +81,19 @@ namespace obiew {
     grpc::Status UpdateUser(User* user);
     grpc::Status DeletePost(Post* post);
     grpc::Status CreatePost(Post* post);
+    grpc::Status DeleteLike(Like* like);
+    grpc::Status CreateLike(Like* like);
+    grpc::Status DeleteComment(Comment* comment);
+    grpc::Status CreateComment(Comment* comment);
+    grpc::Status DeleteFollow(SetFollowResponse* response);
+    grpc::Status CreateFollow(SetFollowResponse* response);
     grpc::Status GetUserStatsByUserId(User* user);
     grpc::Status GetPostsByUserId(User* user);
     grpc::Status GetOriginalPostByPostId(Post* post);
     grpc::Status GetPostByPostId(Post* post);
+    grpc::Status GetLikeByLikeId(Like* like);
+    grpc::Status GetCommentByCommentId(Comment* comment);
+    grpc::Status GetFollowByIds(SetFollowResponse* response);
     grpc::Status GetPostStatByPostId(Post* post);
     grpc::Status GetFeedByUserId(User* user, GetFeedResponse* response);
     grpc::Status GetCompletePost(Post* post);

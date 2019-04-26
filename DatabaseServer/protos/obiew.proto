@@ -27,8 +27,8 @@ message Post {
     string content = 3;
     int32 image_id = 4; // Id for image look-up.
     string created = 5;
-    Post original_post = 6;
-    int32 direct_repost_id = 7;
+    Post original_post = 6; // Only exist if the Post is a re-post
+    int32 direct_repost_id = 7; //Should be 0 or null if the Post is not a re-post.
     int32 num_reposts = 8;
     int32 num_comments = 9;
     int32 num_likes = 10;
@@ -83,7 +83,7 @@ message User {
     int32 user_id = 1;
     string password = 2; // TODO: Encryption.
     string name = 3;
-    int32 profile_picture = 4; // Id for retrieving image.
+    int32 profile_picture = 4; // Id for image look-up.
     string email = 5;
     string phone = 6;
     int32 num_posts = 7;

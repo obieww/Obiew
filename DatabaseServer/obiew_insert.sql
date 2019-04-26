@@ -18,6 +18,7 @@ INSERT INTO Posts (UserId, Content) VALUES (2, "My first post.");
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "Haha :)", NULL);
 
 
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice");

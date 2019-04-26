@@ -24,7 +24,10 @@ using obiew::GetUserRequest;
 using obiew::GetUserResponse;
 using obiew::SetUserRequest;
 using obiew::SetUserResponse;
+using obiew::SetPostRequest;
+using obiew::SetPostResponse;
 using obiew::Obiew;
+using obiew::Post;
 using obiew::OperationType;
 // #define TIME_LOG() std::cout << TimeNow();
 
@@ -131,6 +134,62 @@ class ObiewClient {
     }
   }
 
+  void DeletePost(int post_id) {
+    // Context for the client.
+    ClientContext context;
+    Post post;
+    post.set_post_id(post_id);
+    SetPostRequest request;
+    *request.mutable_post() = post;
+    request.set_operation(OperationType::DELETE);
+    SetPostResponse response;
+    Status status = stub_->SetPost(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "PostId " << post_id << " is deleted!" << std::endl;
+    }
+  }
+
+  void CreatePost(int user_id, const std::string& content) {
+    // Context for the client.
+    ClientContext context;
+    Post post;
+    post.set_user_id(user_id);
+    post.set_content(content);
+    SetPostRequest request;
+    *request.mutable_post() = post;
+    request.set_operation(OperationType::CREATE);
+    SetPostResponse response;
+    Status status = stub_->SetPost(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "Post created!"<< std::endl << response.post().DebugString();
+    }
+  }
+
+  void CreatePost(int user_id, const std::string& content, int repost_id) {
+    // Context for the client.
+    ClientContext context;
+    Post post;
+    post.set_user_id(user_id);
+    post.set_content(content);
+    post.set_direct_repost_id(repost_id);
+    SetPostRequest request;
+    *request.mutable_post() = post;
+    request.set_operation(OperationType::CREATE);
+    SetPostResponse response;
+    Status status = stub_->SetPost(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "Post created!"<< std::endl << response.post().DebugString();
+    }
+  }
 
  private:
   std::unique_ptr<Obiew::Stub> stub_;
@@ -182,6 +241,18 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: UpdateUser " << args[1]
                << std::endl;
       client.UpdateUser(std::stoi(args[1]), args[2], args[3], args[4], args[5]);
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletepost") {
+      TIME_LOG << "Sending request: DeletePost " << args[1]
+               << std::endl;
+      client.DeletePost(std::stoi(args[1]));
+    } else if (args.size() == 3 && ToLowerCase(args[0]) == "createpost") {
+      TIME_LOG << "Sending request: CreatePost " << args[2]
+               << std::endl;
+      client.CreatePost(std::stoi(args[1]), args[2]);
+    } else if (args.size() == 4 && ToLowerCase(args[0]) == "createpost") {
+      TIME_LOG << "Sending request: CreatePost " << args[2]
+               << std::endl;
+      client.CreatePost(std::stoi(args[1]), args[2], std::stoi(args[3]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

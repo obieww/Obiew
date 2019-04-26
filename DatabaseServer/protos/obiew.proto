@@ -87,7 +87,7 @@ message User {
 
 // Get Feed Request.
 message GetFeedRequest {
-    User user = 1;
+    User user = 1; // Require: user_id
 }
 
 // Get Feed Response.
@@ -107,7 +107,7 @@ message GetPostResponse {
 
 // Set Post Request.
 message SetPostRequest {
-    Post post = 1;
+    Post post = 1; // Require: user_d, content, (optional)direct_repost_id
     OperationType operation = 2;
 }
 
@@ -127,11 +127,11 @@ message GetUserStatResponse {
 }
 
 message RegisterRequest {
-    User user = 1; // Require: Name, Password, ProfilePicture, Email, Phone
+    User user = 1; // Require: Name, Password, Email, Phone
 }
 
 message RegisterResponse {
-    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+    User user = 1; // Contain: UserId, Name, Email, Phone
 }
 
 message LogInRequest {
@@ -139,7 +139,7 @@ message LogInRequest {
 }
 
 message LogInResponse {
-    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+    User user = 1; // Contain: UserId, Name, Email, Phone
 }
 
 // Get User Request.
@@ -149,23 +149,12 @@ message GetUserRequest {
 
 // Get User Response.
 message GetUserResponse {
-    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone, num_posts, num_following, num_followers, Posts
-}
-
-// Set User Request.
-message SetUserRequest {
-    User user = 1;
-    OperationType operation = 2;
-}
-
-// Set User Response.
-message SetUserResponse {
-    User user = 1;
+    User user = 1; // Contain: UserId, Name, Email, Phone, num_posts, num_following, num_followers, Posts
 }
 
 // Get Followers Request.
 message GetFollowersRequest {
-    User user = 1;
+    User user = 1; // Require: UserId
 }
 
 // Get Followers Response.
@@ -175,7 +164,7 @@ message GetFollowersResponse {
 
 // Get Followings Request.
 message GetFollowingsRequest {
-    User user = 1;
+    User user = 1; // Require: UserId
 }
 
 // Get Followings Response.
@@ -183,63 +172,92 @@ message GetFollowingsResponse {
     repeated User user = 1;
 }
 
-// Set Follow Request.
-message SetFollowRequest {
-    int32 follower_id = 1;
-    int32 followee_id = 2;
-    OperationType operation = 3;
-}
+// // Get Repost(s) Request.
+// message GetRepostsRequest {
+//     int32 post_id = 2;
+// }
 
-// Get Repost(s) Request.
-message GetRepostsRequest {
-    int32 post_id = 2; // Get reposts under post_id.
-}
-
-// Get Repost(s) Response.
-message GetRepostsResponse {
-    repeated Repost repost = 1;
-}
+// // Get Repost(s) Response.
+// message GetRepostsResponse {
+//     repeated Repost repost = 1;
+// }
 
 
-// Get Comment(s) Request.
-message GetCommentsRequest {
-    oneof id_oneof { // The request has to be one of the following types.
-        int32 comment_id = 1; // Get a comment by comment_id.
-        int32 post_id = 2; // Get comments under post_id.
-        int32 user_id = 3; // Get comments created by user_id.
-    }
-}
+// // Get Comment(s) Request.
+// message GetCommentsRequest {
+//     oneof id_oneof { // The request has to be one of the following types.
+//         int32 comment_id = 1; // Get a comment by comment_id.
+//         int32 post_id = 2; // Get comments under post_id.
+//         int32 user_id = 3; // Get comments created by user_id.
+//     }
+// }
 
-// Get Comment(s) Response.
-message GetCommentsResponse {
-    repeated Comment comment = 1;
-}
+// // Get Comment(s) Response.
+// message GetCommentsResponse {
+//     repeated Comment comment = 1;
+// }
 
-// Set Comment Request.
-message SetCommentRequest {
-    Comment comment = 1;
+
+// Set User Request.
+message SetUserRequest {
+    User user = 1; // Require: UserId, Name, Password, Email, Phone
     OperationType operation = 2;
 }
 
-// Get Like(s) Request.
-message GetLikesRequest {
-    oneof id_oneof { // The request has to be one of the following types.
-        int32 like_id = 1; // Get a like by like_id.
-        int32 post_id = 2; // Get likes under post_id.
-        int32 user_id = 3; // Get likes created by user_id.
-    }
-}
-
-// Get Like(s) Response.
-message GetLikesResponse {
-    repeated Like like = 1;
+// Set User Response.
+message SetUserResponse {
+    User user = 1;
 }
 
 // Set Like Request.
 message SetLikeRequest {
-    Like like = 1;
+    Like like = 1; // Require: user_id, post_id
     OperationType operation = 2;
 }
+
+// Set Like Response.
+message SetLikesResponse {
+    Like like = 1;
+}
+
+// Set Comment Request.
+message SetCommentRequest {
+    Comment comment = 1; // Require: user_id, post_id, content
+    OperationType operation = 2;
+}
+
+// Set Comment Response.
+message SetCommentsResponse {
+    Comment comment = 1;
+}
+
+
+// Set Follow Request.
+message SetFollowRequest {
+    User follower = 1; // Require: user_id
+    User followee= 2; // Require: user_id
+    OperationType operation = 3;
+}
+
+// Set Follow Response.
+message SetFollowResponse {
+    User follower = 1;
+    User followee= 2;
+}
+
+// // Get Like(s) Request.
+// message GetLikesRequest {
+//     oneof id_oneof { // The request has to be one of the following types.
+//         int32 like_id = 1; // Get a like by like_id.
+//         int32 post_id = 2; // Get likes under post_id.
+//         int32 user_id = 3; // Get likes created by user_id.
+//     }
+// }
+
+// // Get Like(s) Response.
+// message GetLikesResponse {
+//     repeated Like like = 1;
+// }
 
 // RPC Service for posts, comments, likes, and follows.
 service Obiew {
@@ -268,13 +286,13 @@ service Obiew {
 
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
-    // rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
+    rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
 
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 
-    // rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
+    rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
 
-    // rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
+    rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
 }
 
 

@@ -59,7 +59,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << response.user().DebugString();
+      std::cout << response.user().DebugString();
       TIME_LOG << "UserId " << response.user().user_id() << " is registered!" << std::endl;
     }
   }
@@ -78,7 +78,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << response.user().DebugString();
+      std::cout << response.user().DebugString();
       TIME_LOG << "UserId " << response.user().user_id() << " is logged in!" << std::endl;
     }
   }
@@ -96,7 +96,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << response.user().DebugString();
+      std::cout << response.user().DebugString();
       TIME_LOG << "UserId " << response.user().user_id() << " is found!" << std::endl;
     }
   }
@@ -174,7 +174,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << "Post created!"<< std::endl << response.post().DebugString();
+      std::cout << "Post created!"<< std::endl << response.post().DebugString();
     }
   }
 
@@ -194,7 +194,7 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << "Post created!"<< std::endl << response.post().DebugString();
+      std::cout << "Post created!"<< std::endl << response.post().DebugString();
     }
   }
 

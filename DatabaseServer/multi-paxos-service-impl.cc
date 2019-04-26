@@ -456,7 +456,7 @@ namespace obiew {
   }
 
   Status MultiPaxosServiceImpl::GetPostsByUserId(User* user) {
-    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE UserId=%0q:userid LIMIT 10";
+    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE UserId=%0q:userid ORDER BY Created DESC LIMIT 10";
     mysqlpp::Query query = mysql_conn_.query(stmt);
     query.parse();
     mysqlpp::StoreQueryResult result_set = query.store(user->user_id());

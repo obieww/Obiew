@@ -26,6 +26,8 @@ using obiew::SetUserRequest;
 using obiew::SetUserResponse;
 using obiew::SetPostRequest;
 using obiew::SetPostResponse;
+using obiew::GetFeedRequest;
+using obiew::GetFeedResponse;
 using obiew::Obiew;
 using obiew::Post;
 using obiew::OperationType;
@@ -191,6 +193,24 @@ class ObiewClient {
     }
   }
 
+  void GetFeed(int user_id) {
+    // Context for the client.
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    GetFeedRequest request;
+    *request.mutable_user() = user;
+    GetFeedResponse response;
+    Status status = stub_->GetFeed(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.DebugString();
+      TIME_LOG << "Feed for User " << user_id << " is generated!" << std::endl;
+    }
+  }
+
  private:
   std::unique_ptr<Obiew::Stub> stub_;
 };
@@ -253,6 +273,10 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: CreatePost " << args[2]
                << std::endl;
       client.CreatePost(std::stoi(args[1]), args[2], std::stoi(args[3]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfeed") {
+      TIME_LOG << "Sending request: GetFeed for User " << args[1]
+               << std::endl;
+      client.GetFeed(std::stoi(args[1]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

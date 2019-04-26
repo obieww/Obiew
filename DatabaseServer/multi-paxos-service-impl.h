@@ -35,8 +35,8 @@ namespace obiew {
     grpc::Status GetUser(grpc::ServerContext* context, const GetUserRequest* request,
      GetUserResponse* response) override;
 
-    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-     GetPostsResponse* response) override;
+    grpc::Status GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+     GetFeedResponse* response) override;
 
     grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
      SetUserResponse* response) override;
@@ -69,6 +69,7 @@ namespace obiew {
     grpc::Status GetOriginalPostByPostId(Post* post);
     grpc::Status GetPostByPostId(Post* post);
     grpc::Status GetPostStatByPostId(Post* post);
+    grpc::Status GetFeedByUserId(User* user, GetFeedResponse* response);
 
 
   };

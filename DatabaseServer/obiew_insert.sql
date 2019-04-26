@@ -37,6 +37,10 @@ SELECT * FROM PostStats;
 SELECT * FROM PostComments;
 SELECT * FROM PostLikes;
 
+SELECT * from Posts where UserId in (
+	select UserId from Follows where UserId=1);
+
+
 -- DELETE FROM Users where UserId = 2;
 -- DELETE FROM Posts WHERE PostId = 4;
 

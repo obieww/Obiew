@@ -34,6 +34,16 @@ message Post {
     int32 num_likes = 10;
 }
 
+// Get Feed Request.
+message GetFeedRequest {
+    User user = 1;
+}
+
+// Get Feed Response.
+message GetFeedResponse {
+    repeated Post post = 1;
+}
+
 // Get Post(s) Request.
 message GetPostsRequest {
     oneof id_oneof { // The request has to be one of the following types.
@@ -235,6 +245,8 @@ service Obiew {
 
     rpc GetFollows (GetFollowsRequest) returns (GetFollowsResponse) {}
 
+    rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
+
     rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {}
 
     rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
@@ -262,6 +274,8 @@ service MultiPaxos {
     rpc LogIn (LogInRequest) returns (LogInResponse) {}
 
     rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+
+    rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
 
     rpc GetPosts (GetPostsRequest) returns (GetPostsResponse) {}
 

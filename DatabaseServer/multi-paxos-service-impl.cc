@@ -157,19 +157,29 @@ namespace obiew {
     return Status::OK;
   }
 
-  Status MultiPaxosServiceImpl::GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-    GetPostsResponse* response) {
+  Status MultiPaxosServiceImpl::GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+    GetFeedResponse* response) {
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
-      << "Received GetPostsRequest."
+      << "Received GetFeedRequest."
       << std::endl;
     }
-    
+    User user = request->user();
+    if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
+      auto get_feed_status = GetFeedByUserId(&user, response);
+      if(get_feed_status.ok()) {
+        TIME_LOG << response->DebugString();
+      } else {
+        return Status(grpc::StatusCode::ABORTED, get_feed_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
+    }
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
-      << "Returning GetPostsResponse." << std::endl;
+      << "Returning GetFeedResponse." << std::endl;
     }
     return Status::OK;
   }
@@ -240,6 +250,39 @@ namespace obiew {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
       << "Returning SetPostResponse." << std::endl;
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetFeedByUserId(User* user, GetFeedResponse* response) {
+    std::string stmt = "SELECT * FROM Posts WHERE UserId IN (SELECT FolloweeId FROM Follows WHERE UserId=%0q:userid) ORDER BY Created DESC";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() > 0) {
+      for (auto it = result_set.begin(); it != result_set.end(); ++it) {
+        auto* post = response->add_post();
+        mysqlpp::Row row = *it;
+        post->set_post_id(row["PostId"]);
+        post->set_user_id(row["UserId"]);
+        post->set_content(row["Content"]);
+        post->set_image_id(row["ImageId"]);
+        post->set_created(row["Created"]);
+        post->set_direct_repost_id((row["RepostId"]==mysqlpp::null) ? 0 : row["RepostId"]);
+        Post original_post;
+        original_post.set_post_id((row["OriginalPostId"]==mysqlpp::null) ? 0 : row["OriginalPostId"]);
+        if (original_post.post_id() != 0) {
+          auto get_origin_status = GetOriginalPostByPostId(&original_post);
+          if (!get_origin_status.ok()) {
+            return Status(get_origin_status.error_code(), get_origin_status.error_message());
+          }
+        }
+        *post->mutable_original_post() = original_post;
+        auto get_stats_status = GetPostStatByPostId(post);
+        if (!get_stats_status.ok()) {
+          return Status(get_stats_status.error_code(), get_stats_status.error_message());
+        }
+      }
     }
     return Status::OK;
   }
@@ -382,7 +425,7 @@ namespace obiew {
   }
 
   Status MultiPaxosServiceImpl::GetPostsByUserId(User* user) {
-    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE UserId=%0q:userid";
+    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE UserId=%0q:userid LIMIT 10";
     mysqlpp::Query query = mysql_conn_.query(stmt);
     query.parse();
     mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
@@ -438,7 +481,7 @@ namespace obiew {
     return Status::OK;
   }
 
-    Status MultiPaxosServiceImpl::GetPostByPostId(Post* post) {
+  Status MultiPaxosServiceImpl::GetPostByPostId(Post* post) {
     std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE PostId=%0q:postid";
     mysqlpp::Query query = mysql_conn_.query(stmt);
     query.parse();

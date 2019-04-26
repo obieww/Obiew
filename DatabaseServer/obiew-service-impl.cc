@@ -83,6 +83,23 @@ namespace obiew {
     return get_status;
   }
 
+  Status ObiewServiceImpl::GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+    GetFeedResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetFeedRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetFeedResponse." << std::endl;
+    }
+    return get_status;
+  }
+
   Status ObiewServiceImpl::GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
     GetPostsResponse* response) {
     {
@@ -153,6 +170,13 @@ namespace obiew {
     ClientContext* cc, MultiPaxos::Stub* stub, const GetUserRequest& request,
     GetUserResponse* response) {
     return stub->GetUser(cc, request, response);
+  }
+
+  // Forward GetFeedRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFeedRequest& request,
+    GetFeedResponse* response) {
+    return stub->GetFeed(cc, request, response);
   }
 
   // Forward GetPostsRequest to Coordinator.

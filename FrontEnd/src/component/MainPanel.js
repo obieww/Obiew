@@ -67,19 +67,6 @@ class MainPanel extends Component {
       console.log(response)
     })
     .catch(err => console.log(err));
-    
-    onCreateNewObiew({
-      userId: obiews.length + 1,
-      obiewId: obiews.length + 1,
-      pic: "../../images/person_default.png",
-      username: "Anonymous",
-      timestamp: Date.now(),
-      hasReobiewed: false,
-      reobiews: [],
-      likes: [], 
-      comments: [], 
-      obiew: msg,
-    });
     this.setState({
       inputMessage: ""
     });

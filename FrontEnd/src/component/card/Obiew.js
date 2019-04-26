@@ -19,7 +19,7 @@ class Obiew extends Component {
         <div className="media-body">
           <div>
             <b className="remark-person-name f3 mb2">{username}</b>
-            <p className="follow gray f4">Followed</p>
+            <p className="follow gray f4">Follow</p>
           </div>
           <p><span>{obiew}</span></p>
           <div className="remark-foot">

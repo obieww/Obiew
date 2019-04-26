@@ -13,6 +13,14 @@ DROP TABLE IF EXISTS PostStats;
 DROP TABLE IF EXISTS UserStats;
 DROP TABLE IF EXISTS Posts;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS PaxosLogs;
+
+# Create PaxosLogs.
+CREATE TABLE PaxosLogs (
+    LogId INT AUTO_INCREMENT,
+    Content VARCHAR(255),
+    CONSTRAINT pk_PaxosLogs_LogId PRIMARY KEY (LogId)
+);
 
 # Create Users.
 CREATE TABLE Users (

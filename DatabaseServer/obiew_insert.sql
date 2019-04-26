@@ -25,7 +25,7 @@ INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 2);
 INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 4);
 
 
-INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "My first post.", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "The first post.", NULL);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "My first post.", NULL);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);

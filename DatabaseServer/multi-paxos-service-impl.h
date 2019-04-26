@@ -67,7 +67,6 @@ namespace obiew {
     const std::string my_paxos_address_;
     std::mutex log_mtx_;
     PaxosStubsMap* paxos_stubs_map_;
-    mysqlpp::Connection mysql_conn_;
     std::string db_name_;
     std::string mysql_server_;
     std::string mysql_user_;

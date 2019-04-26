@@ -172,32 +172,6 @@ message GetFollowingsResponse {
     repeated User user = 1;
 }
 
-// // Get Repost(s) Request.
-// message GetRepostsRequest {
-//     int32 post_id = 2;
-// }
-
-// // Get Repost(s) Response.
-// message GetRepostsResponse {
-//     repeated Repost repost = 1;
-// }
-
-
-// // Get Comment(s) Request.
-// message GetCommentsRequest {
-//     oneof id_oneof { // The request has to be one of the following types.
-//         int32 comment_id = 1; // Get a comment by comment_id.
-//         int32 post_id = 2; // Get comments under post_id.
-//         int32 user_id = 3; // Get comments created by user_id.
-//     }
-// }
-
-// // Get Comment(s) Response.
-// message GetCommentsResponse {
-//     repeated Comment comment = 1;
-// }
-
-
 // Set User Request.
 message SetUserRequest {
     User user = 1; // Require: UserId, Name, Password, Email, Phone
@@ -246,20 +220,6 @@ message SetFollowResponse {
     string created = 3;
 }
 
-// // Get Like(s) Request.
-// message GetLikesRequest {
-//     oneof id_oneof { // The request has to be one of the following types.
-//         int32 like_id = 1; // Get a like by like_id.
-//         int32 post_id = 2; // Get likes under post_id.
-//         int32 user_id = 3; // Get likes created by user_id.
-//     }
-// }
-
-// // Get Like(s) Response.
-// message GetLikesResponse {
-//     repeated Like like = 1;
-// }
-
 // RPC Service for posts, comments, likes, and follows.
 service Obiew {
 
@@ -269,8 +229,6 @@ service Obiew {
 
     rpc GetUser (GetUserRequest) returns (GetUserResponse) {} // Including Posts and Userstats
 
-    // rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
-
     rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
 
     rpc GetFollowings (GetFollowingsRequest) returns (GetFollowingsResponse) {}
@@ -278,12 +236,6 @@ service Obiew {
     rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
 
     rpc GetPost (GetPostRequest) returns (GetPostResponse) {} // Including Comments, Likes and Reposts
-
-    // rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
-
-    // rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {}
-
-    // rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
 
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
@@ -296,7 +248,7 @@ service Obiew {
     rpc SetFollow (SetFollowRequest) returns (SetFollowResponse) {}
 }
 
-
+// RPC Service for running MultiPaxos.
 service MultiPaxos {
     
     rpc Register (RegisterRequest) returns (RegisterResponse) {}

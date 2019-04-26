@@ -132,6 +132,7 @@ namespace obiew {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
       << "Received GetUserRequest."
+      << request->user().DebugString()
       << std::endl;
     }
     User user = request->user();
@@ -143,7 +144,7 @@ namespace obiew {
         *response->mutable_user()=user;
         TIME_LOG << response->user().DebugString();
       } else {
-        return Status(get_user_status.error_code(), get_user_status.error_message() + get_stats_status.error_message() + get_posts_status.error_message());
+        return Status(grpc::StatusCode::ABORTED, get_user_status.error_message() + get_stats_status.error_message() + get_posts_status.error_message());
       }
     } else {
       return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
@@ -343,8 +344,6 @@ namespace obiew {
           return Status(get_stats_status.error_code(), get_stats_status.error_message());
         }
       }
-    } else {
-      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
     }
     return Status::OK;
   }

@@ -19,14 +19,20 @@ package io.grpc.examples.obiew;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 /**
  * A simple client that requests a greeting from the 
  */
-public class ObiewClient {
+public class ObiewClient implements Server {
   private static final Logger logger = Logger.getLogger(ObiewClient.class.getName());
 
   private final ManagedChannel channel;
@@ -35,8 +41,6 @@ public class ObiewClient {
   /** Construct client connecting to Obiew server at {@code host:port}. */
   public ObiewClient(String host, int port) {
     this(ManagedChannelBuilder.forAddress(host, port)
-        // Channels are secure by default (via SSL/TLS). For the example we disable TLS to avoid
-        // needing certificates.
         .usePlaintext()
         .build());
   }
@@ -52,8 +56,9 @@ public class ObiewClient {
   }
 
   /** Say hello to server. */
-  public void greet(int userId) {
-    logger.info("Will try to greet " + userId + " ...");
+  @Override
+  public User getUser(int userId) {
+    logger.info("get user" + userId + " ...");
     User user = User.newBuilder().setUserId(userId).build();
     GetUserRequest request = GetUserRequest.newBuilder().setUser(user).build();
     GetUserResponse response;
@@ -61,9 +66,43 @@ public class ObiewClient {
       response = blockingStub.getUser(request);
     } catch (StatusRuntimeException e) {
       logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-      return;
+      return null;
     }
-    logger.info("Greeting: " + response.getUser());
+    user = response.getUser();
+    logger.info("Get user: " + user);
+//    io.grpc.examples.obiew.model.User serilizedUser = new io.grpc.examples.obiew.model.User()
+//            .setUserId(userId).setUsername(user.getName()).
+//    ObjectMapper mapper = new ObjectMapper();
+//    String jsonString = "";
+//    try {
+//      jsonString = mapper.writeValueAsString(user);
+//      logger.info("\n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user));
+//    } catch (Exception e) {
+//      e.printStackTrace();
+//      logger.log(Level.WARNING, "parse json failed");
+//    }
+    return user;
+  }
+
+  @Override
+  public boolean login(String username, String password) {
+    logger.info("login user:" + username + " ...");
+    User user = User.newBuilder().setName(username).setPassword(password).build();
+    LogInRequest request = LogInRequest.newBuilder().setUser(user).build();
+    LogInResponse response;
+    try {
+      response = blockingStub.logIn(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return false;
+    }
+    logger.info("Login user success ");
+    return response.getUser() != null;
+  }
+
+  @Override
+  public boolean register(String username, String password, String email, String phone, int pic) {
+    return true;
   }
 
   /**
@@ -71,12 +110,27 @@ public class ObiewClient {
    * greeting.
    */
   public static void main(String[] args) throws Exception {
-    ObiewClient client = new ObiewClient("34.83.222.184", 8000);
+    String host = "34.83.0.86";
+    int port = 8000;
+    if (args.length == 1) {
+      args = args[0].split(":");
+      host = args[0];
+      try {
+        port = Integer.parseInt(args[1]);
+      } catch (Exception e) {
+        logger.log(Level.WARNING, "please input \"host:port\", using default host: " + host + ":" + port);
+      }
+    }
+    ObiewClient client = new ObiewClient(host, 8000);
+    logger.info("initilize the connection to the server on port:" + port);
     try {
-      /* Access a service running on the local machine on port 50051 */
-      client.greet(2);
-    } finally {
-      client.shutdown();
+      // Looking up the registry for the remote object
+      Server server = (Server) UnicastRemoteObject.exportObject(client, port);
+      Registry registry = LocateRegistry.createRegistry(port);
+      registry.bind("Server", server);
+      logger.info("server ready on localhost:" + port + " using name \'Server\'");
+    } catch (Exception e) {
+      logger.log(Level.WARNING, "connection to localhost:" + port + " failed:\n" + e.getStackTrace());
     }
   }
 }

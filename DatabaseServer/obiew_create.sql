@@ -113,7 +113,8 @@ CREATE TABLE PostLikes (
         ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_PostLikes_PostId FOREIGN KEY (PostId)
         REFERENCES Posts(PostId)
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT uniq_PostLikes_PostId_UserId UNIQUE (PostId, UserId)
 );
 
 # Create Triggers

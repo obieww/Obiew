@@ -14,15 +14,13 @@ class App extends Component {
       <div className="page">
         <Header />
         <div className="content">
-          <div className="container main-container">
-            {
-              page === 'home' ?
+          {
+            page === 'home' ?
               <MainPanel /> :
-                page === 'register' ?
-                <Register /> :
-                <Login />
-            }
-          </div>
+              page === 'register' ?
+              <Register /> :
+              <Login />
+          }
         </div>
       </div>
     )

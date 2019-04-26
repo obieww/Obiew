@@ -63,7 +63,7 @@ class Register extends Component {
       password,
       username,
     } = this.state;
-    fetch('https://secure-eyrie-24516.herokuapp.com/api/user/register', {
+    fetch('https://sleepy-island-43632.herokuapp.com//api/user/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -76,6 +76,7 @@ class Register extends Component {
     .then(user => {
       console.log(user)
     })
+    .catch(err => console.log(err))
   }
 
   render() {

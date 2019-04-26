@@ -14,6 +14,12 @@ const reducers = (state={}, action) => {
         username: action.username
       }
     }
+    case constants.CHANGE_OBIEWS: {
+      return {
+        ...state,
+        obiews: action.obiews,
+      }
+    }
     case constants.CREATE_NEW_OBIEW: {
       let obiews = state.obiews.slice(0)
       obiews.unshift(action.obiew)

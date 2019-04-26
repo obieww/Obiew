@@ -1,4 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import {
+  createNewObiew,
+  changePage,
+  changeUser,
+  changeObiews,
+} from '../../store/actions';
 import './user.less';
 
 class Login extends Component {
@@ -8,9 +15,12 @@ class Login extends Component {
       username: '',
       password: ''
     }
+    this.onUsernameChange = this.onUsernameChange.bind(this);
+    this.onPasswordChange = this.onPasswordChange.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 
-  onEmailChange(e) {
+  onUsernameChange(e) {
     this.setState({
       username: e.target.value
     })
@@ -22,7 +32,34 @@ class Login extends Component {
     })
   }
 
-  onSubmitSignIn() {
+  onSubmit() {
+    const {
+      password,
+      username,
+    } = this.state;
+    const {
+      onChangePage,
+      onChangeUser,
+    } = this.props;
+    fetch('https://sleepy-island-43632.herokuapp.com//api/user/login', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        password: password,
+        username: username,
+      })
+    })
+    .then(response => response.json())
+    .then(user => {
+      if (user) {
+        onChangePage('home');
+        onChangeUser(user.username);
+      }
+    })
+    .catch(err => {
+      console.log(err);
+      onChangePage('register');
+    })
   }
 
   render() {
@@ -35,7 +72,7 @@ class Login extends Component {
               <div className="mv3">
                 <label className="db fw6 lh-copy f4" htmlFor="email-address">Email</label>
                 <input className="pa2 input-reset ba bg-transparent hover-bg-white hover-black w-100" 
-                  onChange={this.onEmailChange}  type="email" name="email-address"  id="email-address"/>
+                  onChange={this.onUsernameChange}  type="email" name="email-address"  id="email-address"/>
               </div>
               <div className="mv3">
                 <label className="db fw6 lh-copy f4" htmlFor="password">Password</label>
@@ -45,7 +82,7 @@ class Login extends Component {
             </fieldset>
             <div className="db mv3">
               <input className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f4 dib br2" 
-                onClick={this.onSubmitSignIn} type="submit" value="Login"/>
+                onClick={this.onSubmit} type="submit" value="Login"/>
             </div>
           </div>
         </main>
@@ -54,4 +91,15 @@ class Login extends Component {
   }
 }
 
-export default Login;
+const mapStateToProps = state => ({
+  obiews: state.obiews,
+  username: state.username,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onCreateNewObiew: obiew => dispatch(createNewObiew(obiew)),
+  onChangePage: page => dispatch(changePage(page)),
+  onChangeUser: user => dispatch(changeUser(user)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login)

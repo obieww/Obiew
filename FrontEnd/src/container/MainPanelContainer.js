@@ -6,6 +6,7 @@ import {
 
 const mapStateToProps = state => ({
   obiews: state.obiews,
+  username: state.username,
 });
 
 const mapDispatchToProps = dispatch => ({

@@ -40,8 +40,8 @@ namespace obiew {
     grpc::Status GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
      GetFeedResponse* response) override;
 
-    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-     GetPostsResponse* response) override;
+    grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+     GetPostResponse* response) override;
 
     grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
      SetUserResponse* response) override;
@@ -68,8 +68,8 @@ namespace obiew {
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFeedRequest& request,
     GetFeedResponse* response);
     grpc::Status ForwardToCoordinator(
-    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostsRequest& request,
-    GetPostsResponse* response);
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostRequest& request,
+    GetPostResponse* response);
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetUserRequest& request,
     SetUserResponse* response);

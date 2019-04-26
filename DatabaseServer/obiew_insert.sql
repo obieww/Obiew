@@ -18,16 +18,18 @@ INSERT INTO Posts (UserId, Content) VALUES (2, "My first post.");
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
-INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "Haha :)", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "Haha :)", 1);
 
 
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice");
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 3, "Great");
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (3, 2, "Haha");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (1, 2, "Hello");
 
 INSERT INTO PostLikes (PostId, UserId) VALUES (3, 1);
 INSERT INTO PostLikes (PostId, UserId) VALUES (2, 1);
 INSERT INTO PostLikes (PostId, UserId) VALUES (3, 2);
+INSERT INTO PostLikes (PostId, UserId) VALUES (1, 3);
 
 SELECT * FROM Users;
 SELECT * FROM Follows;
@@ -37,8 +39,7 @@ SELECT * FROM PostStats;
 SELECT * FROM PostComments;
 SELECT * FROM PostLikes;
 
-SELECT * from Posts where UserId in (
-	select UserId from Follows where UserId=1);
+SELECT * FROM Posts WHERE UserId IN (SELECT FolloweeId FROM Follows WHERE UserId=1) ORDER BY Created DESC;
 
 
 -- DELETE FROM Users where UserId = 2;

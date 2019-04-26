@@ -44,6 +44,9 @@ namespace obiew {
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
 
+    grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+     GetPostResponse* response) override;
+
 
 
   private:
@@ -70,7 +73,7 @@ namespace obiew {
     grpc::Status GetPostByPostId(Post* post);
     grpc::Status GetPostStatByPostId(Post* post);
     grpc::Status GetFeedByUserId(User* user, GetFeedResponse* response);
-
+    grpc::Status GetCompletePost(Post* post);
 
   };
 

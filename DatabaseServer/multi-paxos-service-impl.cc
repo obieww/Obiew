@@ -15,14 +15,17 @@ namespace obiew {
   using obiew::LogInResponse;
   using obiew::GetUserRequest;
   using obiew::GetUserResponse;
-  using obiew::GetPostsRequest;
-  using obiew::GetPostsResponse;
+  using obiew::GetPostRequest;
+  using obiew::GetPostResponse;
   using obiew::SetUserRequest;
   using obiew::SetUserResponse;
   using obiew::SetPostRequest;
   using obiew::SetPostResponse;
   using obiew::User;
   using obiew::Post;
+  using obiew::Comment;
+  using obiew::Like;
+  using obiew::Repost;
   using obiew::OperationType;
 
     MultiPaxosServiceImpl::MultiPaxosServiceImpl(
@@ -180,6 +183,34 @@ namespace obiew {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
       << "Returning GetFeedResponse." << std::endl;
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+    GetPostResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Received GetPostRequest."
+      << std::endl;
+    }
+    Post post = request->post();
+    if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
+      auto get_post_status = GetCompletePost(&post);
+      if(get_post_status.ok()) {
+        *response->mutable_post() = post;
+        TIME_LOG << response->DebugString();
+      } else {
+        return Status(grpc::StatusCode::ABORTED, get_post_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
+    }
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Returning GetPostResponse." << std::endl;
     }
     return Status::OK;
   }
@@ -510,6 +541,59 @@ namespace obiew {
       }
     } else {
       return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetCompletePost(Post* post) {
+    auto get_post_status = GetPostByPostId(post);
+    if (get_post_status.ok()) {
+      std::string stmt = "SELECT PostId,CommentId,UserId,Content,Created FROM PostComments WHERE PostId=%0q:postid LIMIT 10";
+      mysqlpp::Query query = mysql_conn_.query(stmt);
+      query.parse();
+      mysqlpp::StoreQueryResult result_set = query.store(post->post_id());
+      if(result_set.size() > 0) {
+        for (auto it = result_set.begin(); it != result_set.end(); ++it) {
+          auto* comment = post->add_comment();
+          mysqlpp::Row row = *it;
+          comment->set_post_id(row["PostId"]);
+          comment->set_comment_id(row["CommentId"]);
+          comment->set_user_id(row["UserId"]);
+          comment->set_content(row["Content"]);
+          comment->set_created(row["Created"]);
+        }
+      }
+      std::string stmt2 = "SELECT PostId,LikeId,UserId,Created FROM PostLikes WHERE PostId=%0q:postid LIMIT 10";
+      mysqlpp::Query query2 = mysql_conn_.query(stmt2);
+      query2.parse();
+      mysqlpp::StoreQueryResult result_set2 = query2.store(post->post_id());
+      if(result_set2.size() > 0) {
+        for (auto it = result_set2.begin(); it != result_set2.end(); ++it) {
+          auto* like = post->add_like();
+          mysqlpp::Row row = *it;
+          like->set_post_id(row["PostId"]);
+          like->set_like_id(row["LikeId"]);
+          like->set_user_id(row["UserId"]);
+          like->set_created(row["Created"]);
+        }
+      }
+      std::string stmt3 = "SELECT PostId,OriginalPostId,UserId,Content,Created FROM Posts WHERE OriginalPostId=%0q:postid LIMIT 10";
+      mysqlpp::Query query3 = mysql_conn_.query(stmt3);
+      query3.parse();
+      mysqlpp::StoreQueryResult result_set3 = query3.store(post->post_id());
+      if(result_set3.size() > 0) {
+        for (auto it = result_set3.begin(); it != result_set3.end(); ++it) {
+          auto* repost = post->add_repost();
+          mysqlpp::Row row = *it;
+          repost->set_repost_id(row["PostId"]);
+          repost->set_post_id(row["OriginalPostId"]);
+          repost->set_user_id(row["UserId"]);
+          repost->set_content(row["Content"]);
+          repost->set_created(row["Created"]);
+        }
+      }
+    } else {
+      return Status(get_post_status.error_code(), get_post_status.error_message());
     }
     return Status::OK;
   }

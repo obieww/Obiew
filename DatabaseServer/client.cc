@@ -28,8 +28,13 @@ using obiew::SetPostRequest;
 using obiew::SetPostResponse;
 using obiew::GetFeedRequest;
 using obiew::GetFeedResponse;
+using obiew::GetPostRequest;
+using obiew::GetPostResponse;
 using obiew::Obiew;
 using obiew::Post;
+using obiew::Comment;
+using obiew::Like;
+using obiew::Repost;
 using obiew::OperationType;
 // #define TIME_LOG() std::cout << TimeNow();
 
@@ -211,6 +216,24 @@ class ObiewClient {
     }
   }
 
+  void GetPost(int post_id) {
+    // Context for the client.
+    ClientContext context;
+    Post post;
+    post.set_post_id(post_id);
+    GetPostRequest request;
+    *request.mutable_post() = post;
+    GetPostResponse response;
+    Status status = stub_->GetPost(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.DebugString();
+      TIME_LOG << "PostId " << post_id << " is found!" << std::endl;
+    }
+  }
+
  private:
   std::unique_ptr<Obiew::Stub> stub_;
 };
@@ -277,6 +300,10 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: GetFeed for User " << args[1]
                << std::endl;
       client.GetFeed(std::stoi(args[1]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "getpost") {
+      TIME_LOG << "Sending request: GetPost " << args[1]
+               << std::endl;
+      client.GetPost(std::stoi(args[1]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

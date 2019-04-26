@@ -25,8 +25,10 @@ namespace obiew {
   using obiew::LogInResponse;
   using obiew::GetUserRequest;
   using obiew::GetUserResponse;
-  using obiew::GetPostsRequest;
-  using obiew::GetPostsResponse;
+  using obiew::GetFeedRequest;
+  using obiew::GetFeedResponse;
+  using obiew::GetPostRequest;
+  using obiew::GetPostResponse;
   using obiew::SetUserRequest;
   using obiew::SetUserResponse;
   using obiew::SetPostRequest;
@@ -83,19 +85,70 @@ namespace obiew {
     return get_status;
   }
 
-  Status ObiewServiceImpl::GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-    GetPostsResponse* response) {
+  Status ObiewServiceImpl::GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+    GetFeedResponse* response) {
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
-      << "Received GetPostsRequest."
+      << "Received GetFeedRequest."
       << std::endl;
     }
     Status get_status = RequestFlow(*request, response);
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
-      << "Returning GetPostsResponse." << std::endl;
+      << "Returning GetFeedResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+    GetPostResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetPostRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetPostResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+    GetFollowingsResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetFollowingsRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetFollowingsResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+    GetFollowersResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetFollowersRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetFollowersResponse." << std::endl;
     }
     return get_status;
   }
@@ -155,11 +208,32 @@ namespace obiew {
     return stub->GetUser(cc, request, response);
   }
 
-  // Forward GetPostsRequest to Coordinator.
+  // Forward GetFeedRequest to Coordinator.
   Status ObiewServiceImpl::ForwardToCoordinator(
-    ClientContext* cc, MultiPaxos::Stub* stub, const GetPostsRequest& request,
-    GetPostsResponse* response) {
-    return stub->GetPosts(cc, request, response);
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFeedRequest& request,
+    GetFeedResponse* response) {
+    return stub->GetFeed(cc, request, response);
+  }
+
+  // Forward GetPostRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetPostRequest& request,
+    GetPostResponse* response) {
+    return stub->GetPost(cc, request, response);
+  }
+
+  // Forward GetFollowingsRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowingsRequest& request,
+    GetFollowingsResponse* response) {
+    return stub->GetFollowings(cc, request, response);
+  }
+
+  // Forward GetFollowersRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowersRequest& request,
+    GetFollowersResponse* response) {
+    return stub->GetFollowers(cc, request, response);
   }
 
   // Forward SetUserRequest to Coordinator.

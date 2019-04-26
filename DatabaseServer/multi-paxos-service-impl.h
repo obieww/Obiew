@@ -35,8 +35,8 @@ namespace obiew {
     grpc::Status GetUser(grpc::ServerContext* context, const GetUserRequest* request,
      GetUserResponse* response) override;
 
-    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-     GetPostsResponse* response) override;
+    grpc::Status GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+     GetFeedResponse* response) override;
 
     grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
      SetUserResponse* response) override;
@@ -44,6 +44,14 @@ namespace obiew {
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
 
+    grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+     GetPostResponse* response) override;
+
+    grpc::Status GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+     GetFollowersResponse* response) override;
+
+    grpc::Status GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+     GetFollowingsResponse* response) override;
 
 
   private:
@@ -60,8 +68,19 @@ namespace obiew {
 
     grpc::Status GetUserByCredentials(User* user);
     grpc::Status GetUserByUserId(User* user);
+    grpc::Status DeleteUser(User* user);
+    grpc::Status UpdateUser(User* user);
+    grpc::Status DeletePost(Post* post);
+    grpc::Status CreatePost(Post* post);
     grpc::Status GetUserStatsByUserId(User* user);
-    
+    grpc::Status GetPostsByUserId(User* user);
+    grpc::Status GetOriginalPostByPostId(Post* post);
+    grpc::Status GetPostByPostId(Post* post);
+    grpc::Status GetPostStatByPostId(Post* post);
+    grpc::Status GetFeedByUserId(User* user, GetFeedResponse* response);
+    grpc::Status GetCompletePost(Post* post);
+    grpc::Status GetFollowingsByUserId(User *user, GetFollowingsResponse *response);
+    grpc::Status GetFollowersByUserId(User *user, GetFollowersResponse *response);
 
   };
 

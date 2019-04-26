@@ -37,14 +37,23 @@ namespace obiew {
     grpc::Status GetUser(grpc::ServerContext* context, const GetUserRequest* request,
      GetUserResponse* response) override;
 
-    grpc::Status GetPosts(grpc::ServerContext* context, const GetPostsRequest* request,
-     GetPostsResponse* response) override;
+    grpc::Status GetFeed(grpc::ServerContext* context, const GetFeedRequest* request,
+     GetFeedResponse* response) override;
+
+    grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
+     GetPostResponse* response) override;
 
     grpc::Status SetUser(grpc::ServerContext* context, const SetUserRequest* request,
      SetUserResponse* response) override;
 
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
+
+    grpc::Status GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+     GetFollowersResponse* response) override;
+
+    grpc::Status GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+     GetFollowingsResponse* response) override;
 
   private:
     const std::string obiew_address_;
@@ -62,8 +71,17 @@ namespace obiew {
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetUserRequest& request,
     GetUserResponse* response);
     grpc::Status ForwardToCoordinator(
-    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostsRequest& request,
-    GetPostsResponse* response);
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFeedRequest& request,
+    GetFeedResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostRequest& request,
+    GetPostResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowingsRequest& request,
+    GetFollowingsResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowersRequest& request,
+    GetFollowersResponse* response);
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetUserRequest& request,
     SetUserResponse* response);

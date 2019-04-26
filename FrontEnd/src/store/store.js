@@ -2,7 +2,8 @@ import { createStore } from 'redux';
 import reducers from './reducers'
 
 const defaultState = {
-  username: 'Anonymous',
+  username: '',
+  userId: '',
   page: 'login',
   obiews: [
     {

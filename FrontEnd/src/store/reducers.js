@@ -11,7 +11,8 @@ const reducers = (state={}, action) => {
     case constants.CHANGE_USER: {
       return {
         ...state,
-        username: action.username
+        username: action.username,
+        userId: action.userId,
       }
     }
     case constants.CHANGE_OBIEWS: {

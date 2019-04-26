@@ -53,7 +53,7 @@ class Login extends Component {
     .then(user => {
       if (user) {
         onChangePage('home');
-        onChangeUser(user.username);
+        onChangeUser(user.username, user.userId);
       }
     })
     .catch(err => {

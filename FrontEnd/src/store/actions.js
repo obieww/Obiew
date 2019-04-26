@@ -5,9 +5,15 @@ export const changePage = page => ({
   page,
 })
 
-export const changeUser = username => ({
+export const changeUser = (username, userId) => ({
   type: constants.CHANGE_USER,
   username,
+  userId,
+})
+
+export const changeObiew = obiews => ({
+  type: constants.CHANGE_OBIEWS,
+  obiews,
 })
 
 export const createNewObiew = obiew => ({

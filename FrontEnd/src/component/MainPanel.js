@@ -2,6 +2,10 @@ import React, {Component} from "react";
 import Post from "./card/Post.js";
 import Card from "../container/CardContainer.js";
 import Portrait from '../images/person_default.png';
+import { connect } from 'react-redux';
+import {
+  createNewObiew,
+} from '../store/actions';
 import "./MainPanel.less";
 
 class MainPanel extends Component {
@@ -44,9 +48,26 @@ class MainPanel extends Component {
 
   onCreateNewObiew(msg) {
     const {
+      userId,
       obiews,
       onCreateNewObiew,
-    } = this.props
+    } = this.props;
+    fetch('https://sleepy-island-43632.herokuapp.com//api/obiew/post', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        content: msg,
+        user: {
+          userId: userId,
+        }
+      })
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log(response)
+    })
+    .catch(err => console.log(err));
+    
     onCreateNewObiew({
       userId: obiews.length + 1,
       obiewId: obiews.length + 1,
@@ -121,4 +142,14 @@ class MainPanel extends Component {
   }
 }
 
-export default MainPanel;
+const mapStateToProps = state => ({
+  obiews: state.obiews,
+  username: state.username,
+  userId: state.userId,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onCreateNewObiew: obiew => dispatch(createNewObiew(obiew)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(MainPanel)

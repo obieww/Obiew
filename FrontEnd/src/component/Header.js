@@ -15,7 +15,11 @@ class Header extends Component {
           <div className="container">
             <div
               className={"nav-item" + (page === 'home' ? ' active' : '')}
-              onClick={() => onChangePage('home')}>
+              onClick={() => {
+                if (username) {
+                  onChangePage('home');
+                }
+              }}>
               <span className="glyphicon glyphicon-home"></span> Home
             </div>
             <div
@@ -32,7 +36,7 @@ class Header extends Component {
               className="nav-item"
               onClick={() => {
                 onChangePage('login');
-                onChangeUser('');
+                onChangeUser('', '');
               }}>
               <span className="glyphicon glyphicon-log-out"></span> Logout
             </div>

@@ -22,6 +22,8 @@ namespace obiew {
   using obiew::SetPostRequest;
   using obiew::SetPostResponse;
   using obiew::User;
+  using obiew::Post;
+  using obiew::OperationType;
 
     MultiPaxosServiceImpl::MultiPaxosServiceImpl(
       PaxosStubsMap* paxos_stubs_map, 
@@ -136,11 +138,12 @@ namespace obiew {
     if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
       auto get_user_status = GetUserByUserId(&user);
       auto get_stats_status = GetUserStatsByUserId(&user);
-      if(get_user_status.ok() && get_stats_status.ok()) {
+      auto get_posts_status = GetPostsByUserId(&user);
+      if(get_user_status.ok() && get_stats_status.ok() && get_posts_status.ok()) {
         *response->mutable_user()=user;
         TIME_LOG << response->user().DebugString();
       } else {
-        return Status(get_user_status.error_code(), get_user_status.error_message() + get_stats_status.error_message());
+        return Status(get_user_status.error_code(), get_user_status.error_message() + get_stats_status.error_message() + get_posts_status.error_message());
       }
     } else {
       return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
@@ -178,7 +181,25 @@ namespace obiew {
       << "Received SetUserRequest."
       << std::endl;
     }
-    
+    User user = request->user();
+    if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
+      Status set_user_status;
+      if (request->operation() == OperationType::UPDATE) {
+        set_user_status = UpdateUser(&user);
+      } else if (request->operation() == OperationType::DELETE) {
+        set_user_status = DeleteUser(&user);
+      } else {
+        return Status(grpc::StatusCode::ABORTED, "Operation not supported.");
+      }
+      if(set_user_status.ok()) {
+        *response->mutable_user()=user;
+        TIME_LOG << response->user().DebugString();
+      } else {
+        return Status(set_user_status.error_code(), set_user_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
+    }
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
@@ -204,7 +225,38 @@ namespace obiew {
     return Status::OK;
   }
 
+  Status MultiPaxosServiceImpl::DeleteUser(User* user) {
+    std::string stmt = "DELETE FROM Users WHERE UserId=%0q:userid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    auto result = query.execute(user->user_id());
+    if(result.rows() > 0) {
+      auto get_user_status = GetUserByUserId(user);
+      if(get_user_status.ok()) { // Shouldn't exist.
+        return Status(grpc::StatusCode::ABORTED, "DELETE User Failed.");
+      }
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql UPDATE Failed.");
+    }
+    return Status::OK;
+  }
 
+  Status MultiPaxosServiceImpl::UpdateUser(User* user) {
+    std::string stmt = "UPDATE Users SET Name=%1q:name, Password=AES_ENCRYPT(%2q:password, UNHEX(SHA2(%5q:passphrase,%6:hashlen))), Email=%3q:email,Phone=%4q:phone WHERE UserId=%0q:userid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    TIME_LOG << user->DebugString(); 
+    auto result = query.execute(user->user_id(),user->name(),user->password(), user->email(), user->phone(), pass_phrase_, hash_len_);
+    if(result.rows() > 0) {
+      auto get_user_status = GetUserByUserId(user);
+      if(!get_user_status.ok()) {
+        return Status(get_user_status.error_code(), get_user_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql UPDATE Failed.");
+    }
+    return Status::OK;
+  }
 
   Status MultiPaxosServiceImpl::GetUserByCredentials(User* user) {
     std::string stmt = "SELECT UserId,Name,ProfilePicture,Email,Phone FROM Users WHERE Name=%0q:username AND Password=AES_ENCRYPT(%1q:password, UNHEX(SHA2(%2q:passphrase,%3:hashlen)))";
@@ -256,6 +308,78 @@ namespace obiew {
       user->set_num_posts(row["Posts"]);
       user->set_num_following(row["Following"]);
       user->set_num_followers(row["Followers"]);
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetPostsByUserId(User* user) {
+    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE UserId=%0q:userid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() > 0) {
+      for (auto it = result_set.begin(); it != result_set.end(); ++it) {
+        auto* post = user->add_recent_posts();
+        mysqlpp::Row row = *it;
+        post->set_post_id(row["PostId"]);
+        post->set_user_id(row["UserId"]);
+        post->set_content(row["Content"]);
+        post->set_image_id(row["ImageId"]);
+        post->set_created(row["Created"]);
+        post->set_direct_repost_id((row["RepostId"]==mysqlpp::null) ? 0 : row["RepostId"]);
+        Post original_post;
+        original_post.set_post_id((row["OriginalPostId"]==mysqlpp::null) ? 0 : row["RepostId"]);
+        if (original_post.post_id() != 0) {
+          auto get_origin_status = GetPostByPostId(&original_post);
+          if (!get_origin_status.ok()) {
+            return Status(get_origin_status.error_code(), get_origin_status.error_message());
+          }
+        }
+        *post->mutable_original_post() = original_post;
+        auto get_stats_status = GetPostStatByPostId(post);
+        if (!get_stats_status.ok()) {
+          return Status(get_stats_status.error_code(), get_stats_status.error_message());
+        }
+      }
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetPostByPostId(Post* post) {
+    std::string stmt = "SELECT PostId,UserId,Content,ImageId,Created,RepostId,OriginalPostId FROM Posts WHERE PostId=%0q:postid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(post->post_id());
+    if(result_set.size() == 1) {
+      auto it = result_set.begin();
+      mysqlpp::Row row = *it;
+      post->set_post_id(row["PostId"]);
+      post->set_user_id(row["UserId"]);
+      post->set_content(row["Content"]);
+      post->set_image_id(row["ImageId"]);
+      post->set_created(row["Created"]);
+      post->set_direct_repost_id((row["RepostId"]==mysqlpp::null) ? 0 : row["RepostId"]);
+    } else {
+      return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetPostStatByPostId(Post* post) {
+    std::string stmt = "SELECT Reposts,Comments,Likes FROM PostStats WHERE PostId=%0q:postid";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(post->post_id());
+    if(result_set.size() == 1) {
+      auto it = result_set.begin();
+      mysqlpp::Row row = *it;
+      post->set_num_reposts(row["Reposts"]);
+      post->set_num_comments(row["Comments"]);
+      post->set_num_likes(row["Likes"]);
     } else {
       return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
     }

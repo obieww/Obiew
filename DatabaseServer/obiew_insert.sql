@@ -1,13 +1,5 @@
 USE Obiew;
 
--- DELETE FROM Likes WHERE LikeId != 0;
--- DELETE FROM Comments WHERE CommentId != 0;
--- DELETE FROM Follows WHERE UserId != 0;
--- DELETE FROM PostStats WHERE PostId != 0;
--- DELETE FROM UserStats WHERE UserId != 0;
--- DELETE FROM Posts WHERE PostId != 0;
--- DELETE FROM Users WHERE UserId != 0;
-
 INSERT INTO Users (Name, Password, Email, Phone) VALUES ("cesca", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "cesca@gmail.com", "408-123-0001");
 INSERT INTO Users (Name, Password, Email, Phone) VALUES ("fibi", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "fibi@gmail.com", "408-123-0002");
 INSERT INTO Users (Name, Password, Email, Phone) VALUES ("hugh", AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512))), "hugh@gmail.com", "408-123-0003");
@@ -46,5 +38,4 @@ SELECT * FROM PostLikes;
 
 -- DELETE FROM Users where UserId = 2;
 -- DELETE FROM Posts WHERE PostId = 4;
-
 

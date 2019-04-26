@@ -22,7 +22,10 @@ using obiew::LogInRequest;
 using obiew::LogInResponse;
 using obiew::GetUserRequest;
 using obiew::GetUserResponse;
+using obiew::SetUserRequest;
+using obiew::SetUserResponse;
 using obiew::Obiew;
+using obiew::OperationType;
 // #define TIME_LOG() std::cout << TimeNow();
 
 class ObiewClient {
@@ -88,6 +91,46 @@ class ObiewClient {
     }
   }
 
+  void DeleteUser(int user_id) {
+    // Context for the client.
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    SetUserRequest request;
+    *request.mutable_user() = user;
+    request.set_operation(OperationType::DELETE);
+    SetUserResponse response;
+    Status status = stub_->SetUser(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "UserId " << user_id << " is deleted!" << std::endl;
+    }
+  }
+
+  void UpdateUser(int user_id, const std::string& name, const std::string& password, const std::string& email, const std::string& phone) {
+    // Context for the client.
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    user.set_name(name);
+    user.set_password(password);
+    user.set_email(email);
+    user.set_phone(phone);
+    SetUserRequest request;
+    *request.mutable_user() = user;
+    request.set_operation(OperationType::UPDATE);
+    SetUserResponse response;
+    Status status = stub_->SetUser(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "UserId " << user_id << " is updated!" << std::endl;
+    }
+  }
+
 
  private:
   std::unique_ptr<Obiew::Stub> stub_;
@@ -131,6 +174,14 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: GetUser " << args[1]
                << std::endl;
       client.GetUser(std::stoi(args[1]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "deleteuser") {
+      TIME_LOG << "Sending request: DeleteUser " << args[1]
+               << std::endl;
+      client.DeleteUser(std::stoi(args[1]));
+    } else if (args.size() == 6 && ToLowerCase(args[0]) == "updateuser") {
+      TIME_LOG << "Sending request: UpdateUser " << args[1]
+               << std::endl;
+      client.UpdateUser(std::stoi(args[1]), args[2], args[3], args[4], args[5]);
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

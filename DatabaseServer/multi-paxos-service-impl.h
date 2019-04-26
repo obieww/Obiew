@@ -60,8 +60,13 @@ namespace obiew {
 
     grpc::Status GetUserByCredentials(User* user);
     grpc::Status GetUserByUserId(User* user);
+    grpc::Status DeleteUser(User* user);
+    grpc::Status UpdateUser(User* user);
     grpc::Status GetUserStatsByUserId(User* user);
-    
+    grpc::Status GetPostsByUserId(User* user);
+    grpc::Status GetPostByPostId(Post* post);
+    grpc::Status GetPostStatByPostId(Post* post);
+
 
   };
 

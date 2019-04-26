@@ -13,9 +13,10 @@ message ServerConfig {
 }
 
 enum OperationType {
-    CREATE = 0;
-    UPDATE = 1;
-    DELETE = 2;
+    NOTSET = 0;
+    CREATE = 1;
+    UPDATE = 2;
+    DELETE = 3;
 }
 
 
@@ -114,7 +115,7 @@ message GetUserRequest {
 
 // Get User Response.
 message GetUserResponse {
-    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone
+    User user = 1; // Contain: UserId, Name, ProfilePicture, Email, Phone, num_posts, num_following, num_followers, Posts
 }
 
 // Set User Request.

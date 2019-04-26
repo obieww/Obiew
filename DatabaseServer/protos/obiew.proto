@@ -248,7 +248,7 @@ service Obiew {
 
     rpc LogIn (LogInRequest) returns (LogInResponse) {}
 
-    rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+    rpc GetUser (GetUserRequest) returns (GetUserResponse) {} // Including Posts and Userstats
 
     // rpc GetUserStat (GetUserStatRequest) returns (GetUserStatResponse) {}
 
@@ -258,23 +258,23 @@ service Obiew {
 
     rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
 
-    rpc GetPost (GetPostRequest) returns (GetPostResponse) {}
+    rpc GetPost (GetPostRequest) returns (GetPostResponse) {} // Including Comments, Likes and Reposts
 
-    rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
+    // rpc GetReposts (GetRepostsRequest) returns (GetRepostsResponse) {}
 
-    rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {}
+    // rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {}
 
-    rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
+    // rpc GetLikes (GetLikesRequest) returns (GetLikesResponse) {}
 
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
-    rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
+    // rpc SetFollow (SetFollowRequest) returns (EmptyMessage) {}
 
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
 
-    rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
+    // rpc SetComment (SetCommentRequest) returns (EmptyMessage) {}
 
-    rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
+    // rpc SetLike (SetLikeRequest) returns (EmptyMessage) {}
 }
 
 
@@ -293,7 +293,7 @@ service MultiPaxos {
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
-    
+
     rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
 
     rpc GetFollowings (GetFollowingsRequest) returns (GetFollowingsResponse) {}

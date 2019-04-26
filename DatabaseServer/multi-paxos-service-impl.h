@@ -47,6 +47,11 @@ namespace obiew {
     grpc::Status GetPost(grpc::ServerContext* context, const GetPostRequest* request,
      GetPostResponse* response) override;
 
+    grpc::Status GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+     GetFollowersResponse* response) override;
+
+    grpc::Status GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+     GetFollowingsResponse* response) override;
 
 
   private:
@@ -74,6 +79,8 @@ namespace obiew {
     grpc::Status GetPostStatByPostId(Post* post);
     grpc::Status GetFeedByUserId(User* user, GetFeedResponse* response);
     grpc::Status GetCompletePost(Post* post);
+    grpc::Status GetFollowingsByUserId(User *user, GetFollowingsResponse *response);
+    grpc::Status GetFollowersByUserId(User *user, GetFollowersResponse *response);
 
   };
 

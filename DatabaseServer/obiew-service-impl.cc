@@ -119,6 +119,40 @@ namespace obiew {
     return get_status;
   }
 
+  Status ObiewServiceImpl::GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+    GetFollowingsResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetFollowingsRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetFollowingsResponse." << std::endl;
+    }
+    return get_status;
+  }
+
+  Status ObiewServiceImpl::GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+    GetFollowersResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received GetFollowersRequest."
+      << std::endl;
+    }
+    Status get_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning GetFollowersResponse." << std::endl;
+    }
+    return get_status;
+  }
+
   Status ObiewServiceImpl::SetUser(grpc::ServerContext* context, const SetUserRequest* request,
     SetUserResponse* response) {
     {
@@ -186,6 +220,20 @@ namespace obiew {
     ClientContext* cc, MultiPaxos::Stub* stub, const GetPostRequest& request,
     GetPostResponse* response) {
     return stub->GetPost(cc, request, response);
+  }
+
+  // Forward GetFollowingsRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowingsRequest& request,
+    GetFollowingsResponse* response) {
+    return stub->GetFollowings(cc, request, response);
+  }
+
+  // Forward GetFollowersRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowersRequest& request,
+    GetFollowersResponse* response) {
+    return stub->GetFollowers(cc, request, response);
   }
 
   // Forward SetUserRequest to Coordinator.

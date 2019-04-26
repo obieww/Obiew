@@ -9,8 +9,20 @@ INSERT INTO Users (Name, Password, Email, Phone) VALUES ("fanfan", AES_ENCRYPT('
 SELECT * FROM Users WHERE AES_ENCRYPT('pass', UNHEX(SHA2('My secret passphrase',512)))=Password;
 
 INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 2);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 4);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 5);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 1);
 INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 3);
-INSERT INTO Follows (UserId, FolloweeId) VALUES (1, 3);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 5);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (2, 4);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (3, 4);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (3, 2);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (4, 1);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (4, 2);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (4, 5);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 1);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 2);
+INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 4);
 
 
 INSERT INTO Posts (UserId, Content) VALUES (1, "My first post.");
@@ -19,18 +31,24 @@ INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "Haha :)", 1);
-INSERT INTO Posts (UserId, Content) VALUES (1, "Avengers!");
+INSERT INTO Posts (UserId, Content) VALUES (5, "Avengers!");
+INSERT INTO Posts (UserId, Content) VALUES (4, "I love Taylor Swift.");
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Yeah.", 8);
 
 
-INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice to meet you!");
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 3, "Great");
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (3, 2, "Haha");
-INSERT INTO PostComments (PostId, UserId, Content) VALUES (1, 2, "Hello");
+INSERT INTO PostComments (PostId, UserId, Content) VALUES (1, 2, "Hi there!");
 
 INSERT INTO PostLikes (PostId, UserId) VALUES (3, 1);
 INSERT INTO PostLikes (PostId, UserId) VALUES (2, 1);
 INSERT INTO PostLikes (PostId, UserId) VALUES (3, 2);
-INSERT INTO PostLikes (PostId, UserId) VALUES (1, 3);
+INSERT INTO PostLikes (PostId, UserId) VALUES (1, 2);
+INSERT INTO PostLikes (PostId, UserId) VALUES (1, 4);
+INSERT INTO PostLikes (PostId, UserId) VALUES (1, 5);
+INSERT INTO PostLikes (PostId, UserId) VALUES (4, 3);
+INSERT INTO PostLikes (PostId, UserId) VALUES (8, 1);
 
 SELECT * FROM Users;
 SELECT * FROM Follows;
@@ -39,9 +57,6 @@ SELECT * FROM Posts;
 SELECT * FROM PostStats;
 SELECT * FROM PostComments;
 SELECT * FROM PostLikes;
-
-SELECT * FROM Posts WHERE UserId IN (SELECT FolloweeId FROM Follows WHERE UserId=1) ORDER BY Created DESC;
-
 
 -- DELETE FROM Users where UserId = 2;
 -- DELETE FROM Posts WHERE PostId = 4;

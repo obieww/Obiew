@@ -83,7 +83,7 @@ namespace obiew {
         auto qurery_status = GetUserByCredentials(&user);
         if(qurery_status.ok()) {
           *response->mutable_user() = user;   
-          TIME_LOG << response->user().DebugString();     
+          std::cout << response->user().DebugString();     
         } else {
           return Status(qurery_status.error_code(), qurery_status.error_message());
         }
@@ -114,7 +114,7 @@ namespace obiew {
       auto qurery_status = GetUserByCredentials(&user);
       if(qurery_status.ok()) {
         *response->mutable_user() = user;   
-        TIME_LOG << response->user().DebugString();     
+        std::cout << response->user().DebugString();     
       } else {
         return Status(qurery_status.error_code(), qurery_status.error_message());
       }
@@ -145,7 +145,7 @@ namespace obiew {
       auto get_posts_status = GetPostsByUserId(&user);
       if(get_user_status.ok() && get_stats_status.ok() && get_posts_status.ok()) {
         *response->mutable_user()=user;
-        TIME_LOG << response->user().DebugString();
+        std::cout << response->user().DebugString();
       } else {
         return Status(grpc::StatusCode::ABORTED, get_user_status.error_message() + get_stats_status.error_message() + get_posts_status.error_message());
       }
@@ -172,7 +172,7 @@ namespace obiew {
     if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
       auto get_feed_status = GetFeedByUserId(&user, response);
       if(get_feed_status.ok()) {
-        TIME_LOG << response->DebugString();
+        std::cout << response->DebugString();
       } else {
         return Status(grpc::StatusCode::ABORTED, get_feed_status.error_message());
       }
@@ -200,7 +200,7 @@ namespace obiew {
       auto get_post_status = GetCompletePost(&post);
       if(get_post_status.ok()) {
         *response->mutable_post() = post;
-        TIME_LOG << response->DebugString();
+        std::cout << response->DebugString();
       } else {
         return Status(grpc::StatusCode::ABORTED, get_post_status.error_message());
       }
@@ -211,6 +211,60 @@ namespace obiew {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] "
       << "Returning GetPostResponse." << std::endl;
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+    GetFollowersResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Received GetFollowersRequest."
+      << std::endl;
+    }
+    User user = request->user();
+    if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
+      auto get_followers_status = GetFollowersByUserId(&user, response);
+      if(get_followers_status.ok()) {
+        std::cout << response->DebugString();
+      } else {
+        return Status(grpc::StatusCode::ABORTED, get_followers_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
+    }
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Returning GetFollowersResponse." << std::endl;
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+    GetFollowingsResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Received GetFollowingsRequest."
+      << std::endl;
+    }
+    User user = request->user();
+    if (mysql_conn_.connect(db_name_.c_str(), mysql_server_.c_str(), mysql_user_.c_str(), mysql_password_.c_str())) {
+      auto get_followings_status = GetFollowingsByUserId(&user, response);
+      if(get_followings_status.ok()) {
+        std::cout << response->DebugString();
+      } else {
+        return Status(grpc::StatusCode::ABORTED, get_followings_status.error_message());
+      }
+    } else {
+      return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
+    }
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+      << "Returning GetFollowingsResponse." << std::endl;
     }
     return Status::OK;
   }
@@ -235,7 +289,7 @@ namespace obiew {
       }
       if(set_user_status.ok()) {
         *response->mutable_user()=user;
-        TIME_LOG << response->user().DebugString();
+        std::cout << response->user().DebugString();
       } else {
         return Status(set_user_status.error_code(), set_user_status.error_message());
       }
@@ -270,7 +324,7 @@ namespace obiew {
       }
       if(set_post_status.ok()) {
         *response->mutable_post()=post;
-        TIME_LOG << response->post().DebugString();
+        std::cout << response->post().DebugString();
       } else {
         return Status(set_post_status.error_code(), set_post_status.error_message());
       }
@@ -370,7 +424,7 @@ namespace obiew {
     std::string stmt = "INSERT INTO Posts (UserId, Content, RepostId) VALUES (%0q:userid, %1q:content, %2q:repostid)";
     mysqlpp::Query query = mysql_conn_.query(stmt);
     query.parse();
-    TIME_LOG << post->DebugString();
+    std::cout << post->DebugString();
     mysqlpp::SimpleResult result;
     if (post->direct_repost_id() != 0) {
       result = query.execute(post->user_id(),post->content(),post->direct_repost_id());
@@ -611,6 +665,38 @@ namespace obiew {
       post->set_num_likes(row["Likes"]);
     } else {
       return Status(grpc::StatusCode::NOT_FOUND, "Mysql SELECT Failed.");
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetFollowingsByUserId(User *user, GetFollowingsResponse *response) {
+    std::string stmt = "SELECT Users.UserId AS UserId, Name FROM Users JOIN (SELECT * FROM Follows WHERE UserId=%0q:userid) AS Following ON Users.UserId = Following.FolloweeId";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() > 0) {
+      for (auto it = result_set.begin(); it != result_set.end(); ++it) {
+        auto* following = response->add_user();
+        mysqlpp::Row row = *it;
+        following->set_user_id(row["UserId"]);
+        following->set_name(row["Name"]);
+      }
+    }
+    return Status::OK;
+  }
+
+  Status MultiPaxosServiceImpl::GetFollowersByUserId(User *user, GetFollowersResponse *response) {
+    std::string stmt = "SELECT Users.UserId AS UserId, Name FROM Users JOIN (SELECT * FROM Follows WHERE FolloweeId=%0q:userid) AS Follower ON Users.UserId = Follower.UserId";
+    mysqlpp::Query query = mysql_conn_.query(stmt);
+    query.parse();
+    mysqlpp::StoreQueryResult result_set = query.store(user->user_id());
+    if(result_set.size() > 0) {
+      for (auto it = result_set.begin(); it != result_set.end(); ++it) {
+        auto* follower = response->add_user();
+        mysqlpp::Row row = *it;
+        follower->set_user_id(row["UserId"]);
+        follower->set_name(row["Name"]);
+      }
     }
     return Status::OK;
   }

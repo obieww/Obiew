@@ -49,6 +49,12 @@ namespace obiew {
     grpc::Status SetPost(grpc::ServerContext* context, const SetPostRequest* request,
      SetPostResponse* response) override;
 
+    grpc::Status GetFollowers(grpc::ServerContext* context, const GetFollowersRequest* request,
+     GetFollowersResponse* response) override;
+
+    grpc::Status GetFollowings(grpc::ServerContext* context, const GetFollowingsRequest* request,
+     GetFollowingsResponse* response) override;
+
   private:
     const std::string obiew_address_;
     const std::string my_paxos_address_;
@@ -70,6 +76,12 @@ namespace obiew {
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetPostRequest& request,
     GetPostResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowingsRequest& request,
+    GetFollowingsResponse* response);
+    grpc::Status ForwardToCoordinator(
+    grpc::ClientContext* cc, MultiPaxos::Stub* stub, const GetFollowersRequest& request,
+    GetFollowersResponse* response);
     grpc::Status ForwardToCoordinator(
     grpc::ClientContext* cc, MultiPaxos::Stub* stub, const SetUserRequest& request,
     SetUserResponse* response);

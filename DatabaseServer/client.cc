@@ -30,6 +30,10 @@ using obiew::GetFeedRequest;
 using obiew::GetFeedResponse;
 using obiew::GetPostRequest;
 using obiew::GetPostResponse;
+using obiew::GetFollowingsRequest;
+using obiew::GetFollowingsResponse;
+using obiew::GetFollowersRequest;
+using obiew::GetFollowersResponse;
 using obiew::Obiew;
 using obiew::Post;
 using obiew::Comment;
@@ -44,7 +48,6 @@ class ObiewClient {
       : stub_(Obiew::NewStub(channel)) {}
 
   void Register(const std::string& name, const std::string& password, const std::string& email, const std::string& phone) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_name(name);
@@ -65,7 +68,6 @@ class ObiewClient {
   }
 
   void LogIn(const std::string& name, const std::string& password) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_name(name);
@@ -84,7 +86,6 @@ class ObiewClient {
   }
 
   void GetUser(int user_id) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_user_id(user_id);
@@ -102,7 +103,6 @@ class ObiewClient {
   }
 
   void DeleteUser(int user_id) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_user_id(user_id);
@@ -120,7 +120,6 @@ class ObiewClient {
   }
 
   void UpdateUser(int user_id, const std::string& name, const std::string& password, const std::string& email, const std::string& phone) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_user_id(user_id);
@@ -142,7 +141,6 @@ class ObiewClient {
   }
 
   void DeletePost(int post_id) {
-    // Context for the client.
     ClientContext context;
     Post post;
     post.set_post_id(post_id);
@@ -160,7 +158,6 @@ class ObiewClient {
   }
 
   void CreatePost(int user_id, const std::string& content) {
-    // Context for the client.
     ClientContext context;
     Post post;
     post.set_user_id(user_id);
@@ -179,7 +176,6 @@ class ObiewClient {
   }
 
   void CreatePost(int user_id, const std::string& content, int repost_id) {
-    // Context for the client.
     ClientContext context;
     Post post;
     post.set_user_id(user_id);
@@ -199,7 +195,6 @@ class ObiewClient {
   }
 
   void GetFeed(int user_id) {
-    // Context for the client.
     ClientContext context;
     User user;
     user.set_user_id(user_id);
@@ -217,7 +212,6 @@ class ObiewClient {
   }
 
   void GetPost(int post_id) {
-    // Context for the client.
     ClientContext context;
     Post post;
     post.set_post_id(post_id);
@@ -231,6 +225,40 @@ class ObiewClient {
     } else {
       std::cout << response.DebugString();
       TIME_LOG << "PostId " << post_id << " is found!" << std::endl;
+    }
+  }
+
+  void GetFollowers(int user_id) {
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    GetFollowersRequest request;
+    *request.mutable_user() = user;
+    GetFollowersResponse response;
+    Status status = stub_->GetFollowers(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.DebugString();
+      TIME_LOG << "Followers for UserId " << user_id << " are found!" << std::endl;
+    }
+  }
+
+  void GetFollowings(int user_id) {
+    ClientContext context;
+    User user;
+    user.set_user_id(user_id);
+    GetFollowingsRequest request;
+    *request.mutable_user() = user;
+    GetFollowingsResponse response;
+    Status status = stub_->GetFollowings(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.DebugString();
+      TIME_LOG << "Followings for UserId " << user_id << " are found!" << std::endl;
     }
   }
 
@@ -304,6 +332,14 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: GetPost " << args[1]
                << std::endl;
       client.GetPost(std::stoi(args[1]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfollowers") {
+      TIME_LOG << "Sending request: GetFollowers " << args[1]
+               << std::endl;
+      client.GetFollowers(std::stoi(args[1]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfollowings") {
+      TIME_LOG << "Sending request: GetFollowings " << args[1]
+               << std::endl;
+      client.GetFollowings(std::stoi(args[1]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
     }

@@ -293,4 +293,8 @@ service MultiPaxos {
     rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
 
     rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
+    
+    rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
+
+    rpc GetFollowings (GetFollowingsRequest) returns (GetFollowingsResponse) {}
 }

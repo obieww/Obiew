@@ -161,13 +161,13 @@ namespace obiew {
       << "Received SetUserRequest."
       << std::endl;
     }
-    Status get_status = RequestFlow(*request, response);
+    Status set_status = RequestFlow(*request, response);
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Returning SetUserResponse." << std::endl;
     }
-    return get_status;
+    return set_status;
   }
 
   Status ObiewServiceImpl::SetPost(grpc::ServerContext* context, const SetPostRequest* request,
@@ -178,13 +178,64 @@ namespace obiew {
       << "Received SetPostRequest."
       << std::endl;
     }
-    Status get_status = RequestFlow(*request, response);
+    Status set_status = RequestFlow(*request, response);
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << obiew_address_ << "] "
       << "Returning SetPostResponse." << std::endl;
     }
-    return get_status;
+    return set_status;
+  }
+
+  Status ObiewServiceImpl::SetLike(grpc::ServerContext* context, const SetLikeRequest* request,
+    SetLikeResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received SetLikeRequest."
+      << std::endl;
+    }
+    Status set_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning SetLikeResponse." << std::endl;
+    }
+    return set_status;
+  }
+
+  Status ObiewServiceImpl::SetComment(grpc::ServerContext* context, const SetCommentRequest* request,
+    SetCommentResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received SetCommentRequest."
+      << std::endl;
+    }
+    Status set_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning SetCommentResponse." << std::endl;
+    }
+    return set_status;
+  }
+
+  Status ObiewServiceImpl::SetFollow(grpc::ServerContext* context, const SetFollowRequest* request,
+    SetFollowResponse* response) {
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Received SetFollowRequest."
+      << std::endl;
+    }
+    Status set_status = RequestFlow(*request, response);
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << obiew_address_ << "] "
+      << "Returning SetFollowResponse." << std::endl;
+    }
+    return set_status;
   }
 
   // Forward RegisterRequest to Coordinator.
@@ -248,6 +299,27 @@ namespace obiew {
     ClientContext* cc, MultiPaxos::Stub* stub, const SetPostRequest& request,
     SetPostResponse* response) {
     return stub->SetPost(cc, request, response);
+  }
+
+  // Forward SetPostRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const SetLikeRequest& request,
+    SetLikeResponse* response) {
+    return stub->SetLike(cc, request, response);
+  }
+
+  // Forward SetPostRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const SetCommentRequest& request,
+    SetCommentResponse* response) {
+    return stub->SetComment(cc, request, response);
+  }
+
+  // Forward SetPostRequest to Coordinator.
+  Status ObiewServiceImpl::ForwardToCoordinator(
+    ClientContext* cc, MultiPaxos::Stub* stub, const SetFollowRequest& request,
+    SetFollowResponse* response) {
+    return stub->SetFollow(cc, request, response);
   }
 
 template <typename Request, typename Response>

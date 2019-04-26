@@ -26,6 +26,12 @@ using obiew::SetUserRequest;
 using obiew::SetUserResponse;
 using obiew::SetPostRequest;
 using obiew::SetPostResponse;
+using obiew::SetLikeRequest;
+using obiew::SetLikeResponse;
+using obiew::SetCommentRequest;
+using obiew::SetCommentResponse;
+using obiew::SetFollowRequest;
+using obiew::SetFollowResponse;
 using obiew::GetFeedRequest;
 using obiew::GetFeedResponse;
 using obiew::GetPostRequest;
@@ -171,7 +177,8 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      std::cout << "Post created!"<< std::endl << response.post().DebugString();
+      std::cout << response.post().DebugString();
+      TIME_LOG << "PostId " << response.post().post_id() << " is created!" << std::endl;
     }
   }
 
@@ -190,7 +197,122 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      std::cout << "Post created!"<< std::endl << response.post().DebugString();
+      std::cout << response.post().DebugString();
+      TIME_LOG << "PostId " << response.post().post_id() << " is created!" << std::endl;
+    }
+  }
+
+  void DeleteLike(int like_id) {
+    ClientContext context;
+    Like like;
+    like.set_like_id(like_id);
+    SetLikeRequest request;
+    *request.mutable_like() = like;
+    request.set_operation(OperationType::DELETE);
+    SetLikeResponse response;
+    Status status = stub_->SetLike(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "LikeId " << like_id << " is deleted!" << std::endl;
+    }
+  }
+
+  void CreateLike(int post_id, int user_id) {
+    ClientContext context;
+    Like like;
+    like.set_post_id(post_id);
+    like.set_user_id(user_id);
+    SetLikeRequest request;
+    *request.mutable_like() = like;
+    request.set_operation(OperationType::CREATE);
+    SetLikeResponse response;
+    Status status = stub_->SetLike(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.like().DebugString();
+      TIME_LOG << "LikeId " << response.like().like_id() << " is created!" << std::endl;
+    }
+  }
+
+  void DeleteComment(int comment_id) {
+    ClientContext context;
+    Comment comment;
+    comment.set_comment_id(comment_id);
+    SetCommentRequest request;
+    *request.mutable_comment() = comment;
+    request.set_operation(OperationType::DELETE);
+    SetCommentResponse response;
+    Status status = stub_->SetComment(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "CommentId " << comment_id << " is deleted!" << std::endl;
+    }
+  }
+
+  void CreateComment(int post_id, int user_id, const std::string& content) {
+    ClientContext context;
+    Comment comment;
+    comment.set_post_id(post_id);
+    comment.set_user_id(user_id);
+    comment.set_content(content);
+    SetCommentRequest request;
+    *request.mutable_comment() = comment;
+    request.set_operation(OperationType::CREATE);
+    SetCommentResponse response;
+    Status status = stub_->SetComment(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.comment().DebugString();
+      TIME_LOG << "CommentId " << response.comment().comment_id() << " is created!" << std::endl;
+    }
+  }
+
+  void DeleteFollow(int follower_id, int followee_id) {
+    ClientContext context;
+    User follower;
+    User followee;
+    follower.set_user_id(follower_id);
+    followee.set_user_id(followee_id);
+    SetFollowRequest request;
+    *request.mutable_follower() = follower;
+    *request.mutable_followee() = followee;
+    request.set_operation(OperationType::DELETE);
+    SetFollowResponse response;
+    Status status = stub_->SetFollow(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id << "] is deleted!" << std::endl;
+    }
+  }
+
+  void CreateFollow(int follower_id, int followee_id) {
+    ClientContext context;
+    User follower;
+    User followee;
+    follower.set_user_id(follower_id);
+    followee.set_user_id(followee_id);
+    SetFollowRequest request;
+    *request.mutable_follower() = follower;
+    *request.mutable_followee() = followee;
+    request.set_operation(OperationType::CREATE);
+    SetFollowResponse response;
+    Status status = stub_->SetFollow(&context, request, &response);
+    if (!status.ok()) {
+      TIME_LOG << "Error Code " << status.error_code() << ". "
+               << status.error_message() << std::endl;
+    } else {
+      std::cout << response.follower().DebugString();
+      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id << "] is created!" << std::endl;
     }
   }
 
@@ -324,6 +446,30 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: CreatePost " << args[2]
                << std::endl;
       client.CreatePost(std::stoi(args[1]), args[2], std::stoi(args[3]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletelike") {
+      TIME_LOG << "Sending request: DeleteLike " << args[1]
+               << std::endl;
+      client.DeleteLike(std::stoi(args[1]));
+    } else if (args.size() == 3 && ToLowerCase(args[0]) == "createlike") {
+      TIME_LOG << "Sending request: CreateLike for PostId" << args[1]
+               << std::endl;
+      client.CreateLike(std::stoi(args[1]), std::stoi(args[2]));
+    } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletecomment") {
+      TIME_LOG << "Sending request: DeleteComment " << args[1]
+               << std::endl;
+      client.DeleteComment(std::stoi(args[1]));
+    } else if (args.size() == 4 && ToLowerCase(args[0]) == "createcomment") {
+      TIME_LOG << "Sending request: CreateComment " << args[3]
+               << std::endl;
+      client.CreateComment(std::stoi(args[1]), std::stoi(args[2]), args[3]);
+    } else if (args.size() == 3 && ToLowerCase(args[0]) == "deletefollow") {
+      TIME_LOG << "Sending request: DeleteFollow " << args[1] << " follows " << args[2]
+               << std::endl;
+      client.DeleteFollow(std::stoi(args[1]), std::stoi(args[2]));
+    } else if (args.size() == 3 && ToLowerCase(args[0]) == "createfollow") {
+      TIME_LOG << "Sending request: CreateFollow " << args[1] << " follows " << args[2]
+               << std::endl;
+      client.CreateFollow(std::stoi(args[1]), std::stoi(args[2]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfeed") {
       TIME_LOG << "Sending request: GetFeed for User " << args[1]
                << std::endl;

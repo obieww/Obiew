@@ -273,14 +273,14 @@ public class ObiewClient implements Server {
       logger.log(Level.WARNING, "connection to localhost:" + port + " failed:\n" + e.getStackTrace());
     }
 
-    client.getUser(2);
-    client.register("crownn","pass", "crown@gmail.com", "", 0);
-    client.login("crown", "pass");
-    client.getObiews(2);
-    client.getComments(2);
-    client.getLikes(2);
-    client.postComment(2, 2,"good");
-    client.postLike(2,2);
-    client.postObiew(2, "fibi is fat");
+//    client.getUser(2);
+//    client.register("crownn","pass", "crown@gmail.com", "", 0);
+//    client.login("crown", "pass");
+//    client.getObiews(2);
+//    client.getComments(2);
+//    client.getLikes(2);
+//    client.postComment(2, 2,"good");
+//    client.postLike(2,2);
+//    client.postObiew(2, "fibi is fat");
   }
 }

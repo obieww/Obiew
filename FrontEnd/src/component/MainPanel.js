@@ -35,7 +35,7 @@ class MainPanel extends Component {
         response.map(obiew => ({
           userId: userId,
           obiewId: obiew.obiewId,
-          username: username,
+          username: obiew.username,
           timestamp: Date.now(),
           likes: obiew.likeList.map(like =>({
             userId: userId,
@@ -44,13 +44,13 @@ class MainPanel extends Component {
           comments: obiew.commentList.map(comment => ({
             obiewId: obiew.obiewId,
             userId: userId,
-            username: "Anonymous",
+            username: comment.username,
             timestamp: Date.now(),
             reply: comment.content,
           })), 
           reobiews: [],
           obiew: obiew.content,
-        }))
+        })
       );
     })
     .catch(err => console.log(err));

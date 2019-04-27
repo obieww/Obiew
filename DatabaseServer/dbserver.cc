@@ -4,7 +4,6 @@
 #include <iostream>
 #include <memory>
 #include <mutex>
-#include <mutex>
 #include <string>
 #include <thread>
 #include <unordered_map>
@@ -14,15 +13,15 @@
 #include <google/protobuf/text_format.h>
 #include <grpcpp/grpcpp.h>
 
-#include "obiew-service-impl.h"
 #include "multi-paxos-service-impl.h"
+#include "obiew-service-impl.h"
 #include "time_log.h"
 
 using google::protobuf::TextFormat;
 
 std::unique_ptr<grpc::Server> InitializeService(
-  const std::string& service_name, const std::string& server_address,
-  grpc::Service* service) {
+    const std::string& service_name, const std::string& server_address,
+    grpc::Service* service) {
   grpc::ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
@@ -41,14 +40,14 @@ int main(int argc, char** argv) {
   // Set server address.
   if (argc <= 1) {
     std::cerr
-    << "Usage: `./server \"my_addr:'<addr>' my_paxos:'<addr>' fail_rate:"
-    "<double> replica:'<addr>' ... replica:'<addr>'\"`"
-    << std::endl
-    << "Like this:" << std::endl
-    << "`./server \"my_addr:'0.0.0.0:8000' my_paxos:'0.0.0.0:9000' "
-    "fail_rate:0.3 replica:'0.0.0.0:9000' replica:'0.0.0.0:9001' "
-    "replica:'0.0.0.0:9002'\"`"
-    << std::endl;
+        << "Usage: `./server \"my_addr:'<addr>' my_paxos:'<addr>' fail_rate:"
+           "<double> replica:'<addr>' ... replica:'<addr>'\"`"
+        << std::endl
+        << "Like this:" << std::endl
+        << "`./server \"my_addr:'0.0.0.0:8000' my_paxos:'0.0.0.0:9000' "
+           "fail_rate:0.3 replica:'0.0.0.0:9000' replica:'0.0.0.0:9001' "
+           "replica:'0.0.0.0:9002'\"`"
+        << std::endl;
     return -1;
   }
   obiew::ServerConfig server_config;
@@ -61,24 +60,25 @@ int main(int argc, char** argv) {
   for (int i = 0; i < server_config.replica_size(); ++i) {
     const std::string& paxos_address = server_config.replica(i);
 
-    stubs[paxos_address] = std::move(std::unique_ptr<obiew::MultiPaxos::Stub>(obiew::MultiPaxos::NewStub(
-      grpc::CreateChannel(paxos_address, grpc::InsecureChannelCredentials()))));
+    stubs[paxos_address] = std::move(std::unique_ptr<obiew::MultiPaxos::Stub>(
+        obiew::MultiPaxos::NewStub(grpc::CreateChannel(
+            paxos_address, grpc::InsecureChannelCredentials()))));
     TIME_LOG << "Adding " << paxos_address << " to the Paxos stubs list."
-    << std::endl;
+             << std::endl;
   }
 
   obiew::PaxosStubsMap paxos_stubs_map(std::move(stubs));
   const std::string& my_obiew_address = server_config.my_addr();
   const std::string& my_paxos_address = server_config.my_paxos();
 
-  obiew::ObiewServiceImpl obiew_service(
-    &paxos_stubs_map, my_obiew_address, my_paxos_address);
-  obiew::MultiPaxosServiceImpl multi_paxos_service(
-    &paxos_stubs_map, my_paxos_address);
-  std::unique_ptr<grpc::Server> obiew_server = InitializeService(
-    "ObiewService", my_obiew_address, &obiew_service);
+  obiew::ObiewServiceImpl obiew_service(&paxos_stubs_map, my_obiew_address,
+                                        my_paxos_address);
+  obiew::MultiPaxosServiceImpl multi_paxos_service(&paxos_stubs_map,
+                                                   my_paxos_address);
+  std::unique_ptr<grpc::Server> obiew_server =
+      InitializeService("ObiewService", my_obiew_address, &obiew_service);
   std::unique_ptr<grpc::Server> multi_paxos_server = InitializeService(
-    "MultiPaxosService", my_paxos_address, &multi_paxos_service);
+      "MultiPaxosService", my_paxos_address, &multi_paxos_service);
 
   // Starts ObiewService in a detached thread.
   std::thread obiew_thread(StartService, obiew_server.get());

@@ -40,12 +40,11 @@ int main(int argc, char** argv) {
   // Set server address.
   if (argc <= 1) {
     std::cerr
-        << "Usage: `./server \"my_addr:'<addr>' my_paxos:'<addr>' fail_rate:"
-           "<double> replica:'<addr>' ... replica:'<addr>'\"`"
+        << "Usage: `./server \"my_ip:'<ip>' obiew_port:'<port>' paxos_port:'<port>' replica:'<addr>' ... replica:'<addr>'\"`"
         << std::endl
         << "Like this:" << std::endl
-        << "`./server \"my_addr:'0.0.0.0:8000' my_paxos:'0.0.0.0:9000' "
-           "fail_rate:0.3 replica:'0.0.0.0:9000' replica:'0.0.0.0:9001' "
+        << "`./server \"my_ip:'0.0.0.0' obiew_port:'8000' paxos_port:'9000' "
+           "replica:'0.0.0.0:9000' replica:'0.0.0.0:9001' "
            "replica:'0.0.0.0:9002'\"`"
         << std::endl;
     return -1;
@@ -68,17 +67,19 @@ int main(int argc, char** argv) {
   }
 
   obiew::PaxosStubsMap paxos_stubs_map(std::move(stubs));
-  const std::string& my_obiew_address = server_config.my_addr();
-  const std::string& my_paxos_address = server_config.my_paxos();
+  const std::string& my_obiew_address = server_config.my_ip() + ":" +server_config.obiew_port();
+  const std::string& my_paxos_address = server_config.my_ip() + ":" +server_config.paxos_port();
+  const std::string& obiew_address = std::string("0.0.0.0:") +server_config.obiew_port();
+  const std::string& paxos_address = std::string("0.0.0.0:") +server_config.paxos_port();;
 
   obiew::ObiewServiceImpl obiew_service(&paxos_stubs_map, my_obiew_address,
                                         my_paxos_address);
   obiew::MultiPaxosServiceImpl multi_paxos_service(&paxos_stubs_map,
                                                    my_paxos_address);
   std::unique_ptr<grpc::Server> obiew_server =
-      InitializeService("ObiewService", my_obiew_address, &obiew_service);
+      InitializeService("ObiewService", obiew_address, &obiew_service);
   std::unique_ptr<grpc::Server> multi_paxos_server = InitializeService(
-      "MultiPaxosService", my_paxos_address, &multi_paxos_service);
+      "MultiPaxosService", paxos_address, &multi_paxos_service);
 
   // Starts ObiewService in a detached thread.
   std::thread obiew_thread(StartService, obiew_server.get());

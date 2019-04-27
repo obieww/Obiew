@@ -27,8 +27,8 @@ class PaxosStubsMap {
   // Returns a set of keys in paxos_logs_map_.
   // std::unordered_set<std::string> GetPaxosLogKeys();
 
-  // Returns a copy of PaxosLogsMap of a key.
-  // std::map<int, PaxosLog> GetPaxosLogs(const std::string& key);
+  // Returns a copy of PaxosLogs of a type.
+  std::map<int, PaxosLog> GetPaxosLogs(ProposalType type);
 
   // Returns a copy of sql_paxos_logs_.
   std::map<int, PaxosLog> GetSqlPaxosLogs();

@@ -151,6 +151,7 @@ class MultiPaxosServiceImpl final : public MultiPaxos::Service {
   grpc::Status RunPaxos(Proposal* proposal);
 
   PaxosLog GetPaxosLog(ProposalType type, int round);
+  std::map<int, PaxosLog> GetPaxosLogs(ProposalType type);
   // Returns the latest Paxos round number for the given type.
   int GetLatestRound(ProposalType type);
   // Add PaxosLog when Acceptor receives a proposal.

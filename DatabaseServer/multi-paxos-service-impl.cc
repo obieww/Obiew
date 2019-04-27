@@ -143,9 +143,8 @@ Status MultiPaxosServiceImpl::Prepare(grpc::ServerContext* context,
                   "Aborted. Proposal ID is too low.");
   } else if (type != ProposalType::COORDINATOR && RandomFail()) {
     std::stringstream fail_msg;
-    fail_msg << "[Rejected] Acceptor random-failed on Prepare[type: "
-             << type << ", round: " << round
-             << ", propose_id: " << propose_id << ")";
+    fail_msg << "[Rejected] Acceptor random-failed on Prepare[type: " << type
+             << ", round: " << round << ", propose_id: " << propose_id << ")";
     {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       TIME_LOG << "[" << my_paxos_address_ << "] " << fail_msg.str()
@@ -203,9 +202,8 @@ Status MultiPaxosServiceImpl::Propose(grpc::ServerContext* context,
     response->set_propose_id(propose_id);
     *response->mutable_proposal() = proposal;
     AddPaxosLog(type, round, propose_id, proposal);
-    accept_msg << "[Accepted] [type: " << type
-               << ", round: " << round << ", propose_id: " << propose_id
-               << "].";
+    accept_msg << "[Accepted] [type: " << type << ", round: " << round
+               << ", propose_id: " << propose_id << "].";
   }
   {
     std::unique_lock<std::mutex> writer_lock(log_mtx_);
@@ -228,22 +226,23 @@ Status MultiPaxosServiceImpl::Inform(grpc::ServerContext* context,
   auto proposal = acceptance.proposal();
   *response->mutable_proposal() = proposal;
   // Update Paxos log in db.
-  AddPaxosLog(proposal.type(), acceptance.round(), acceptance.propose_id(), proposal);
+  AddPaxosLog(proposal.type(), acceptance.round(), acceptance.propose_id(),
+              proposal);
   // Will NOT execute operation if it's not the latest round.
   if (acceptance.round() < GetLatestRound(proposal.type())) {
     return Status(grpc::StatusCode::ABORTED,
                   "Aborted. Operation overwritten by others.");
   }
   // Execute operation.
-  if(proposal.type() == ProposalType::COORDINATOR) {
-      paxos_stubs_map_->SetCoordinator(proposal.coordinator());
-      {
-        std::unique_lock<std::mutex> writer_lock(log_mtx_);
-        TIME_LOG << "[" << my_paxos_address_ << "] "
-                 << "[Success] Set Coordinator to [" << proposal.coordinator()
-                 << "]." << std::endl;
-      }
-  } else if(proposal.type() == ProposalType::SQL) {
+  if (proposal.type() == ProposalType::COORDINATOR) {
+    paxos_stubs_map_->SetCoordinator(proposal.coordinator());
+    {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+               << "[Success] Set Coordinator to [" << proposal.coordinator()
+               << "]." << std::endl;
+    }
+  } else if (proposal.type() == ProposalType::SQL) {
     if (proposal.has_register_request()) {
       return Register(response->mutable_proposal());
     } else if (proposal.has_set_user_request()) {
@@ -264,23 +263,14 @@ Status MultiPaxosServiceImpl::Inform(grpc::ServerContext* context,
 Status MultiPaxosServiceImpl::Recover(grpc::ServerContext* context,
                                       const RecoverRequest* request,
                                       RecoverResponse* response) {
-  // auto kv_map = kv_db_->GetDataMap();
-  // auto paxos_logs_map = kv_db_->GetPaxosLogsMap();
-  // *response->mutable_kv_map() = google::protobuf::Map<std::string, std::string>(
-  //     kv_map.begin(), kv_map.end());
-  // // for (const auto& kv : kv_map) {
-  // //   const std::string& type = kv.first;
-  // //   const auto& paxos_logs = kv_db_->GetPaxosLogs(type);
-  // //   *(*response->mutable_paxos_logs())[type].mutable_logs() =
-  // //       google::protobuf::Map<int, PaxosLog>(paxos_logs.begin(),
-  // //                                            paxos_logs.end());
-  // // }
-  // for (const auto& paxos_logs : paxos_logs_map) {
-  //   const std::string& type = paxos_logs.first;
-  //   *(*response->mutable_paxos_logs())[type].mutable_logs() =
-  //       google::protobuf::Map<int, PaxosLog>(paxos_logs.second.begin(),
-  //                                            paxos_logs.second.end());
-  // }
+  auto sql_paxos_logs = GetPaxosLogs(ProposalType::SQL);
+  auto cdnt_paxos_logs = GetPaxosLogs(ProposalType::COORDINATOR);
+  *response->mutable_sql_paxos_logs()->mutable_logs() =
+      google::protobuf::Map<int, PaxosLog>(sql_paxos_logs.begin(),
+                                           sql_paxos_logs.end());
+  *response->mutable_cdnt_paxos_logs()->mutable_logs() =
+      google::protobuf::Map<int, PaxosLog>(cdnt_paxos_logs.begin(),
+                                           cdnt_paxos_logs.end());
   return Status::OK;
 }
 
@@ -737,12 +727,6 @@ Status MultiPaxosServiceImpl::CreatePost(Post* post) {
     }
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS PostId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -832,12 +816,6 @@ Status MultiPaxosServiceImpl::CreateLike(Like* like) {
     result = query.execute(like->user_id(), like->post_id());
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS LikeId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -930,12 +908,6 @@ Status MultiPaxosServiceImpl::CreateComment(Comment* comment) {
                            comment->content());
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS CommentId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -1474,9 +1446,97 @@ Status MultiPaxosServiceImpl::GetRecovery() {
     TIME_LOG << "[" << my_paxos_address_ << "] "
              << "Sending RecoverRequest to Coordinator." << std::endl;
   }
+  assert(paxos_stubs_map_ != nullptr);
+  auto* coordinator_stub = paxos_stubs_map_->GetCoordinatorStub();
+  ClientContext context;
+  auto deadline =
+      std::chrono::system_clock::now() + std::chrono::milliseconds(5000);
+  context.set_deadline(deadline);
+  RecoverRequest recover_req;
+  RecoverResponse recover_resp;
+  Status recover_status =
+      coordinator_stub->Recover(&context, recover_req, &recover_resp);
+  if (!recover_status.ok()) {
+    std::unique_lock<std::mutex> writer_lock(log_mtx_);
+    TIME_LOG << "[" << my_paxos_address_ << "] "
+             << "Failed to get Recovery from Coordinator." << std::endl;
+    return Status(grpc::StatusCode::ABORTED,
+                  "Failed to get Recovery from Coordinator.");
+  }
+  int last_cdnt_round = GetLatestRound(ProposalType::COORDINATOR);
+  int last_sql_round = GetLatestRound(ProposalType::SQL);
+  const auto& sql_paxos_logs = recover_resp.sql_paxos_logs().logs();
+  auto it = sql_paxos_logs.find(last_sql_round);
+  if (it == sql_paxos_logs.end()) {
+    it = sql_paxos_logs.begin();
+  } else {
+    it++;
+  }
+  for (; it != sql_paxos_logs.end(); ++it) {
+    AddPaxosLog(ProposalType::SQL, it->first, it->second.promised_id(),
+                it->second.accepted_id(), it->second.proposal());
+    auto* my_paxos_stub = paxos_stubs_map_->GetStub(my_paxos_address_);
+    InformRequest inform_req;
+    *(inform_req.mutable_acceptance()->mutable_proposal()) =
+        it->second.proposal();
+    ClientContext context;
+    auto deadline =
+        std::chrono::system_clock::now() + std::chrono::milliseconds(5000);
+    context.set_deadline(deadline);
+    InformResponse inform_resp;
+    Status inform_status =
+        my_paxos_stub->Inform(&context, inform_req, &inform_resp);
+    if (!inform_status.ok()) {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      std::cout << inform_resp.proposal().DebugString();
+      // TIME_LOG << "[" << my_paxos_address_ << "] "
+      //          << "  Recover SQL falied." << std::endl;
+    } else {
+      std::unique_lock<std::mutex> writer_lock(log_mtx_);
+      std::cout << inform_resp.proposal().DebugString();
+      TIME_LOG << "[" << my_paxos_address_ << "] "
+               << "successfully executed SQL!" << std::endl;
+    }
+  }
+  const auto& cdnt_paxos_logs = recover_resp.cdnt_paxos_logs().logs();
+  auto it2 = cdnt_paxos_logs.find(last_cdnt_round);
+  if (it2 == cdnt_paxos_logs.end()) {
+    it2 = cdnt_paxos_logs.begin();
+  } else {
+    it2++;
+  }
+  for (; it2 != cdnt_paxos_logs.end(); ++it2) {
+    AddPaxosLog(ProposalType::COORDINATOR, it2->first,
+                it2->second.promised_id(), it2->second.accepted_id(),
+                it2->second.proposal());
+  }
+
+  // auto tmp_kv_db = kv_db_->GetDataMap();
+  // auto tmp_paxos_keys = kv_db_->GetPaxosLogKeys();
+  // {
+  //   std::unique_lock<std::mutex> writer_lock(log_mtx_);
+  //   TIME_LOG << "[" << my_paxos_address_ << "] "
+  //            << "Received recovery snapshot:" << std::endl;
+  //   TIME_LOG << "[" << my_paxos_address_ << "] "
+  //            << "KV Data Map:" << std::endl;
+  //   for (const auto& kv : tmp_kv_db) {
+  //     TIME_LOG << "[" << my_paxos_address_ << "] "
+  //              << "  [key: " << kv.first << ", value: " << kv.second << "]"
+  //              << std::endl;
+  //   }
+  //   TIME_LOG << "[" << my_paxos_address_ << "] "
+  //            << "Paxos Logs:" << std::endl;
+  //   for (const auto& key : tmp_paxos_keys) {
+  //     TIME_LOG << "[" << my_paxos_address_ << "] "
+  //              << "  [key: " << key
+  //              << ", last round: " << kv_db_->GetLatestRound(key) << "]."
+  //              << std::endl;
+  //   }
+  TIME_LOG << "[" << my_paxos_address_ << "] "
+           << "[Success] Recovered data and paxos logs." << std::endl;
+  // }
   return Status::OK;
 }
-
 
 Status MultiPaxosServiceImpl::Register(Proposal* proposal) {
   {
@@ -1531,7 +1591,7 @@ Status MultiPaxosServiceImpl::SetUser(Proposal* proposal) {
              << "Received SetUserRequest." << std::endl;
   }
   SetUserRequest* request = proposal->mutable_set_user_request();
-SetUserResponse* response = proposal->mutable_set_user_response();
+  SetUserResponse* response = proposal->mutable_set_user_response();
   User user = request->user();
   Status set_user_status;
   if (request->operation() == OperationType::UPDATE) {
@@ -1563,7 +1623,7 @@ Status MultiPaxosServiceImpl::SetPost(Proposal* proposal) {
              << "Received SetPostRequest." << std::endl;
   }
   SetPostRequest* request = proposal->mutable_set_post_request();
-SetPostResponse* response = proposal->mutable_set_post_response();
+  SetPostResponse* response = proposal->mutable_set_post_response();
   Post post = request->post();
   Status set_post_status;
   if (request->operation() == OperationType::CREATE) {
@@ -1595,7 +1655,7 @@ Status MultiPaxosServiceImpl::SetLike(Proposal* proposal) {
              << "Received SetLikeRequest." << std::endl;
   }
   SetLikeRequest* request = proposal->mutable_set_like_request();
-SetLikeResponse* response = proposal->mutable_set_like_response();
+  SetLikeResponse* response = proposal->mutable_set_like_response();
   Like like = request->like();
   Status set_like_status;
   if (request->operation() == OperationType::CREATE) {
@@ -1627,7 +1687,7 @@ Status MultiPaxosServiceImpl::SetComment(Proposal* proposal) {
              << "Received SetCommentRequest." << std::endl;
   }
   SetCommentRequest* request = proposal->mutable_set_comment_request();
-SetCommentResponse* response = proposal->mutable_set_comment_response();
+  SetCommentResponse* response = proposal->mutable_set_comment_response();
   Comment comment = request->comment();
   Status set_comment_status;
   if (request->operation() == OperationType::CREATE) {
@@ -1684,6 +1744,15 @@ Status MultiPaxosServiceImpl::SetFollow(Proposal* proposal) {
   return Status::OK;
 }
 
+// Returns a copy of PaxosLogs of a type.
+std::map<int, PaxosLog> MultiPaxosServiceImpl::GetPaxosLogs(ProposalType type) {
+  if (type == ProposalType::SQL) {
+    return paxos_stubs_map_->GetSqlPaxosLogs();
+  } else {
+    return paxos_stubs_map_->GetCdntPaxosLogs();
+  }
+}
+
 // Returns the Paxos log for given type & round.
 PaxosLog MultiPaxosServiceImpl::GetPaxosLog(ProposalType type, int round) {
   return paxos_stubs_map_->GetPaxosLog(type, round);
@@ -1699,21 +1768,22 @@ void MultiPaxosServiceImpl::AddPaxosLog(ProposalType type, int round) {
 }
 // Update the promised_id in paxos_logs_map_ for the given key and round.
 void MultiPaxosServiceImpl::AddPaxosLog(ProposalType type, int round,
-                                   int promised_id) {
+                                        int promised_id) {
   paxos_stubs_map_->AddPaxosLog(type, round, promised_id);
 }
 
 // Update the acceptance info in paxos_logs_map_ for the given key and round.
 void MultiPaxosServiceImpl::AddPaxosLog(ProposalType type, int round,
-                                   int accepted_id, Proposal proposal) {
+                                        int accepted_id, Proposal proposal) {
   paxos_stubs_map_->AddPaxosLog(type, round, accepted_id, proposal);
-
 }
 
 // Add PaxosLog from recovery snapshot.
-void MultiPaxosServiceImpl::AddPaxosLog(ProposalType type, int round, int promised_id,
-                                int accepted_id, Proposal proposal) {
-  paxos_stubs_map_->AddPaxosLog(type, round, promised_id, accepted_id, proposal);
+void MultiPaxosServiceImpl::AddPaxosLog(ProposalType type, int round,
+                                        int promised_id, int accepted_id,
+                                        Proposal proposal) {
+  paxos_stubs_map_->AddPaxosLog(type, round, promised_id, accepted_id,
+                                proposal);
 }
 
 Status MultiPaxosServiceImpl::RunPaxos(Proposal* proposal) {

@@ -7,9 +7,10 @@ package obiew;
 message EmptyMessage {}
 
 message ServerConfig {
-    string my_addr = 1;
-    string my_paxos = 2;
-    repeated string replica = 3;
+    string my_ip = 1;
+    string obiew_port = 2;
+    string paxos_port = 3;
+    repeated string replica = 4;
 }
 
 enum OperationType {
@@ -318,12 +319,10 @@ message PaxosLogs {
 }
 
 message RecoverRequest {
-    int32 log_id = 1;
-    ProposalType type = 2;
 }
 message RecoverResponse {
-    map<string, PaxosLogs> paxos_logs = 1;
-    ProposalType type = 2;
+    PaxosLogs sql_paxos_logs = 1;
+    PaxosLogs cdnt_paxos_logs = 2;
 }
 
 // RPC Service for posts, comments, likes, and follows.

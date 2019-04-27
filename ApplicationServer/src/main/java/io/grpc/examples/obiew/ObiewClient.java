@@ -16,18 +16,20 @@
 
 package io.grpc.examples.obiew;
 
+import com.google.protobuf.util.JsonFormat;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * A simple client that requests a greeting from the 
@@ -53,35 +55,6 @@ public class ObiewClient implements Server {
 
   public void shutdown() throws InterruptedException {
     channel.shutdown().awaitTermination(5, TimeUnit.SECONDS);
-  }
-
-  /** Say hello to server. */
-  @Override
-  public User getUser(int userId) {
-    logger.info("get user" + userId + " ...");
-    User user = User.newBuilder().setUserId(userId).build();
-    GetUserRequest request = GetUserRequest.newBuilder().setUser(user).build();
-    GetUserResponse response;
-    try {
-      response = blockingStub.getUser(request);
-    } catch (StatusRuntimeException e) {
-      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
-      return null;
-    }
-    user = response.getUser();
-    logger.info("Get user: " + user);
-//    io.grpc.examples.obiew.model.User serilizedUser = new io.grpc.examples.obiew.model.User()
-//            .setUserId(userId).setUsername(user.getName()).
-//    ObjectMapper mapper = new ObjectMapper();
-//    String jsonString = "";
-//    try {
-//      jsonString = mapper.writeValueAsString(user);
-//      logger.info("\n" + mapper.writerWithDefaultPrettyPrinter().writeValueAsString(user));
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//      logger.log(Level.WARNING, "parse json failed");
-//    }
-    return user;
   }
 
   @Override
@@ -116,6 +89,162 @@ public class ObiewClient implements Server {
     return response.getUser() != null;
   }
 
+  @Override
+  public String getUser(int userId) {
+    logger.info("get user" + userId + " ...");
+    User user = User.newBuilder().setUserId(userId).build();
+    GetUserRequest request = GetUserRequest.newBuilder().setUser(user).build();
+    GetUserResponse response;
+    try {
+      response = blockingStub.getUser(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return null;
+    }
+    user = response.getUser();
+
+    String userJson = "";
+    try {
+      userJson = JsonFormat.printer().print(user);
+      logger.info("Convert to JSON");
+    } catch (Exception e) {
+      e.printStackTrace();
+      logger.log(Level.WARNING, "json converted failed:\n" );
+    }
+
+    return userJson;
+  }
+
+  @Override
+  public List<String> getObiews(int userId) throws RemoteException {
+    logger.info("get obiews of" + userId + " ...");
+    User user = User.newBuilder().setUserId(userId).build();
+    GetFeedRequest request = GetFeedRequest.newBuilder().setUser(user).build();
+    GetFeedResponse response;
+    try {
+      response = blockingStub.getFeed(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return null;
+    }
+
+    List<Post> posts = response.getPostList();
+    List<String> postsJson = new ArrayList<>();
+
+    for (Post post :posts) {
+      try {
+        postsJson.add(JsonFormat.printer().print(post));
+      } catch (Exception e) {
+        e.printStackTrace();
+        logger.log(Level.WARNING, "json converted failed:\n" );
+      }
+    }
+
+    logger.info("" + posts.size());
+    return postsJson;
+  }
+
+  @Override
+  public List<String> getLikes(int postId) throws RemoteException {
+    logger.info("get likes of" + postId + " ...");
+    GetLikesRequest request = GetLikesRequest.newBuilder().setPostId(postId).build();
+    GetLikesResponse response;
+    try {
+      response = blockingStub.getLikes(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return null;
+    }
+    List<Like> likes = response.getLikeList();
+    List<String> likesJson = new ArrayList<>();
+
+    for (Like like : likes) {
+      try {
+        likesJson.add(JsonFormat.printer().print(like));
+      } catch (Exception e) {
+        e.printStackTrace();
+        logger.log(Level.WARNING, "json converted failed:\n" );
+      }
+    }
+    logger.info("" + likesJson.size());
+    return likesJson;
+  }
+
+  @Override
+  public List<String> getComments(int postId) throws RemoteException {
+    logger.info("get likes of" + postId + " ...");
+    GetCommentsRequest request = GetCommentsRequest.newBuilder().setPostId(postId).build();
+    GetCommentsResponse response;
+    try {
+      response = blockingStub.getComments(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return null;
+    }
+
+    List<Comment> comments = response.getCommentList();
+    List<String> commentsJson = new ArrayList<>();
+
+    for (Comment comment : comments) {
+      try {
+        commentsJson.add(JsonFormat.printer().print(comment));
+      } catch (Exception e) {
+        e.printStackTrace();
+        logger.log(Level.WARNING, "json converted failed:\n" );
+      }
+    }
+    logger.info("" + commentsJson.size());
+    return commentsJson;
+  }
+
+  @Override
+  public boolean postObiew(int userId, String content) throws RemoteException {
+    logger.info("post obiew of user:" + userId + " ...");
+    Post post = Post.newBuilder().setContent(content).setUserId(userId).build();
+    SetPostRequest request = SetPostRequest.newBuilder().setPost(post).setOperation(OperationType.CREATE).build();
+
+    try {
+      blockingStub.setPost(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return false;
+    }
+    logger.info("create post");
+    return true;
+  }
+
+  @Override
+  public boolean postComment(int obiewId, int userId, String content) throws RemoteException {
+    logger.info("post comment of user:" + obiewId + " ...");
+    Comment comment = Comment.newBuilder().setContent(content).setUserId(userId).setPostId(obiewId).build();
+    SetCommentRequest request = SetCommentRequest.newBuilder().setComment(comment).setOperation(OperationType.CREATE).build();
+
+    try {
+      blockingStub.setComment(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return false;
+    }
+    logger.info("create post");
+    return true;
+  }
+
+  @Override
+  public boolean postLike(int obiewId, int userId) throws RemoteException {
+    logger.info("post like of post:" + obiewId + " ...");
+    Like like = Like.newBuilder().setPostId(obiewId).setUserId(userId).setPostId(obiewId).build();
+    SetLikeRequest request = SetLikeRequest.newBuilder().setLike(like).setOperation(OperationType.CREATE).build();
+
+    try {
+      blockingStub.setLike(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return false;
+    }
+    logger.info("create post");
+    return true;
+  }
+
   /**
    * Greet server. If provided, the first element of {@code args} is the name to use in the
    * greeting.
@@ -143,5 +272,15 @@ public class ObiewClient implements Server {
     } catch (Exception e) {
       logger.log(Level.WARNING, "connection to localhost:" + port + " failed:\n" + e.getStackTrace());
     }
+
+    client.getUser(2);
+    client.register("crownn","pass", "crown@gmail.com", "", 0);
+    client.login("crown", "pass");
+    client.getObiews(2);
+    client.getComments(2);
+    client.getLikes(2);
+    client.postComment(2, 2,"good");
+    client.postLike(2,2);
+    client.postObiew(2, "fibi is fat");
   }
 }

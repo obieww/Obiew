@@ -102,7 +102,18 @@ public class ObiewClient implements Server {
 
   @Override
   public boolean register(String username, String password, String email, String phone, int pic) {
-    return true;
+    logger.info("register user:" + username + " ...");
+    User user = User.newBuilder().setName(username).setPassword(password).setEmail(email).setPhone(phone).build();
+    RegisterRequest request = RegisterRequest.newBuilder().setUser(user).build();
+    RegisterResponse response;
+    try {
+      response = blockingStub.register(request);
+    } catch (StatusRuntimeException e) {
+      logger.log(Level.WARNING, "RPC failed: {0}", e.getStatus());
+      return false;
+    }
+    logger.info("Register user success ");
+    return response.getUser() != null;
   }
 
   /**

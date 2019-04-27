@@ -10,9 +10,12 @@
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 build/
+out/
+.idea/
 
 # Package Files #
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 *.war
 *.nar
 *.ear

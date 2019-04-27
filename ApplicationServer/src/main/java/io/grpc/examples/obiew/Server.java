@@ -9,6 +9,4 @@ public interface Server extends Remote {
     boolean login(String username, String password) throws RemoteException;
 
     boolean register(String username, String password, String email, String phone, int pic) throws RemoteException;
-
-
 }

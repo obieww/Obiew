@@ -1,6 +1,6 @@
 import React, {Component} from "react";
 import Obiew from "./Obiew.js";
-import Reply from "../../container/ReplyContainer.js";
+import Reply from "./Reply.js";
 import Post from "./Post.js";
 import "./Card.less";
 
@@ -53,18 +53,38 @@ class Card extends Component {
 
   onCreateNewReply(msg) {
     const {
+      userId,
+      username,
       onCreateNewComment
     } = this.props;
     const {
       obiew
     } = this.state;
-    onCreateNewComment(obiew.obiewId, {
-      commentId: Date.now(),
-      obiewId: obiew.obiewId,
-      userId: obiew.userId,
-      timestamp: Date.now(),
-      reply: msg,
-    });
+    console.log(userId, obiew.obiewId);
+    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/comment', {
+      method: 'post',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        content: msg,
+        user: {
+          userId: userId
+        },
+        parent: {
+          obiewId: obiew.obiewId
+        }
+      })
+    })
+    .then(response => {
+      onCreateNewComment(obiew.obiewId, {
+        username: username,
+        commentId: Date.now(),
+        obiewId: obiew.obiewId,
+        userId: obiew.userId,
+        timestamp: Date.now(),
+        reply: msg,
+      });
+    })
+    .catch(err => console.log(err));
   }
 
   render() {

@@ -7,6 +7,8 @@ import {
 } from '../store/actions'
 
 const mapStateToProps = state => ({
+  username: state.username,
+  userId: state.userId,
   obiews: state.obiews,
 })
 

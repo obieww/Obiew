@@ -54,6 +54,7 @@ class Login extends Component {
       if (user) {
         onChangeUser(user.username, user.userId);
         onChangePage('home');
+        console.log(user.userId);
       }
     })
     .catch(err => {
@@ -99,7 +100,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   onCreateNewObiew: obiew => dispatch(createNewObiew(obiew)),
   onChangePage: page => dispatch(changePage(page)),
-  onChangeUser: user => dispatch(changeUser(user)),
+  onChangeUser: (username, userId) => dispatch(changeUser(username, userId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login)

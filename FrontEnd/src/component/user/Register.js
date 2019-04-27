@@ -1,4 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import {
+  changePage,
+} from '../../store/actions';
 import './user.less'
 
 class Register extends Component {
@@ -74,7 +78,7 @@ class Register extends Component {
     })
     .then(response => response.json())
     .then(user => {
-      console.log(user)
+      this.props.onChangePage('login');
     })
     .catch(err => console.log(err))
   }
@@ -128,4 +132,12 @@ class Register extends Component {
   }
 }
 
-export default Register;
+const mapStateToProps = state => ({
+  page: state.page,
+});
+
+const mapDispatchToProps = dispatch => ({
+  onChangePage: page => dispatch(changePage(page)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(Register);

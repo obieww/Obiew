@@ -11,7 +11,7 @@ export const changeUser = (username, userId) => ({
   userId,
 })
 
-export const changeObiew = obiews => ({
+export const changeObiews = obiews => ({
   type: constants.CHANGE_OBIEWS,
   obiews,
 })

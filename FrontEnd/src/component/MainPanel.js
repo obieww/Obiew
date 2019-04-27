@@ -12,22 +12,45 @@ class MainPanel extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      // hasNewMsg: true,
       showAnchor: false,
     };
-    // this.onShowNewMessage = this.onShowNewMessage.bind(this);
     this.onMousewheel = this.onMousewheel.bind(this);
     this.onCreateNewObiew = this.onCreateNewObiew.bind(this);
   }
 
   componentWillMount() {
+    const {
+      userId,
+      username,
+      onChangeObiews,
+    } = this.props
     fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/randomfeed', {
       method: 'GET',
       headers: {'Content-Type': 'application/json'},
     })
     .then(response => response.json())
     .then(response => {
-      console.log(response)
+      onChangeObiews(
+        response.map(obiew => ({
+          userId: userId,
+          obiewId: obiew.obiewId,
+          username: username,
+          timestamp: Date.now(),
+          likes: obiew.likeList.map(like =>({
+            userId: userId,
+            obiewId: obiew.obiewId, 
+          })), 
+          comments: obiew.commentList.map(comment => ({
+            obiewId: obiew.obiewId,
+            userId: userId,
+            username: "Anonymous",
+            timestamp: Date.now(),
+            reply: comment.content,
+          })), 
+          reobiews: [],
+          obiew: obiew.content,
+        }))
+      );
     })
     .catch(err => console.log(err));
     window.addEventListener("scroll", this.onMousewheel);
@@ -43,18 +66,6 @@ class MainPanel extends Component {
     });
   }
 
-  // onShowNewMessage(e) {
-  //   let obiews = this.props.obiews.slice(0);
-  //   obiews.unshift(utils.defaultObiew(obiews, "new message"))
-  //   this.setState({
-  //     obiews: obiews
-  //   })
-  //   this.setState({
-  //     hasNewMsg: false
-  //   });
-  //   window.scrollTo(0, 0);
-  // }
-
   onCreateNewObiew(msg) {
     const {
       userId,
@@ -62,31 +73,27 @@ class MainPanel extends Component {
       username,
       onCreateNewObiew,
     } = this.props;
-    onCreateNewObiew({
-      userId: userId,
-      obiewId: Date.now(),
-      pic: "../../images/person_default.png",
-      username: username,
-      timestamp: Date.now(),
-      likes: [], 
-      hasReobiewed: false,
-      comments: [], 
-      reobiews: [],
-      obiew: msg,
-    })
     fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/post', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
         content: msg,
         user: {
-          userId: userId,
+          userId: userId
         }
       })
     })
-    .then(response => response.json())
     .then(response => {
-      console.log(response)
+      onCreateNewObiew({
+        userId: userId,
+        obiewId: Date.now(),
+        username: username,
+        timestamp: Date.now(),
+        likes: [], 
+        comments: [], 
+        reobiews: [],
+        obiew: msg,
+      });
     })
     .catch(err => console.log(err));
   }
@@ -120,13 +127,6 @@ class MainPanel extends Component {
               <Post
                 msg="Tell the world what's happening"
                 onClick={this.onCreateNewObiew} />
-              {/*
-                this.state.hasNewMsg ?
-                <div className='panel-info panel-heading new-info' onClick={this.onShowNewMessage}>
-                  <span>See more obiews</span>
-                </div> :
-                null
-              */}
               {
                 obiews.map(obiew => <Card key={obiew.obiewId} obiew={obiew} />)
               }

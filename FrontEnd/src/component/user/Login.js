@@ -52,8 +52,8 @@ class Login extends Component {
     .then(response => response.json())
     .then(user => {
       if (user) {
-        onChangePage('home');
         onChangeUser(user.username, user.userId);
+        onChangePage('home');
       }
     })
     .catch(err => {

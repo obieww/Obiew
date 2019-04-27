@@ -21,6 +21,15 @@ class MainPanel extends Component {
   }
 
   componentWillMount() {
+    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/randomfeed', {
+      method: 'GET',
+      headers: {'Content-Type': 'application/json'},
+    })
+    .then(response => response.json())
+    .then(response => {
+      console.log(response)
+    })
+    .catch(err => console.log(err));
     window.addEventListener("scroll", this.onMousewheel);
   }
 
@@ -50,9 +59,22 @@ class MainPanel extends Component {
     const {
       userId,
       obiews,
+      username,
       onCreateNewObiew,
     } = this.props;
-    fetch('https://sleepy-island-43632.herokuapp.com//api/obiew/post', {
+    onCreateNewObiew({
+      userId: userId,
+      obiewId: Date.now(),
+      pic: "../../images/person_default.png",
+      username: username,
+      timestamp: Date.now(),
+      likes: [], 
+      hasReobiewed: false,
+      comments: [], 
+      reobiews: [],
+      obiew: msg,
+    })
+    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/post', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -67,9 +89,6 @@ class MainPanel extends Component {
       console.log(response)
     })
     .catch(err => console.log(err));
-    this.setState({
-      inputMessage: ""
-    });
   }
 
   render() {

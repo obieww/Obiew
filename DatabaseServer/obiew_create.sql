@@ -18,6 +18,10 @@ DROP TABLE IF EXISTS PaxosLogs;
 # Create PaxosLogs.
 CREATE TABLE PaxosLogs (
     LogId INT AUTO_INCREMENT,
+    ServerId INT,
+    PromisedId INT,
+    AcceptedId INT,
+    Type ENUM("COORDINATOR", "SQL"),
     Content VARCHAR(255),
     CONSTRAINT pk_PaxosLogs_LogId PRIMARY KEY (LogId)
 );

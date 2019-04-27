@@ -70,6 +70,36 @@ class MultiPaxosServiceImpl final : public MultiPaxos::Service {
   grpc::Status GetFollowings(grpc::ServerContext* context,
                              const GetFollowingsRequest* request,
                              GetFollowingsResponse* response) override;
+  // Update coordinator when old coordinator is unavailable.
+  grpc::Status ElectCoordinator(grpc::ServerContext* context,
+                                const ElectCoordinatorRequest* request,
+                                EmptyMessage* response) override;
+  // Get the current coordinator.
+  grpc::Status GetCoordinator(grpc::ServerContext* context,
+                              const EmptyMessage* request,
+                              GetCoordinatorResponse* response) override;
+
+  // Paxos phase 1. Coordinator -> Acceptor.
+  grpc::Status Prepare(grpc::ServerContext* context,
+                       const PrepareRequest* request,
+                       PromiseResponse* response) override;
+  // Paxos phase 2. Coordinator -> Acceptor.
+  grpc::Status Propose(grpc::ServerContext* context,
+                       const ProposeRequest* request,
+                       AcceptResponse* response) override;
+  // Paxos phase 3. Coordinator -> Learner.
+  grpc::Status Inform(grpc::ServerContext* context,
+                      const InformRequest* request,
+                      InformResponse* response) override;
+
+  // Test if the server is available.
+  grpc::Status Ping(grpc::ServerContext* context, const EmptyMessage* request,
+                    EmptyMessage* response) override;
+
+  // After brought up again, a server will catch up with others' logs.
+  grpc::Status Recover(grpc::ServerContext* context,
+                       const RecoverRequest* request,
+                       RecoverResponse* response) override;
 
  private:
   const std::string my_paxos_address_;
@@ -81,6 +111,7 @@ class MultiPaxosServiceImpl final : public MultiPaxos::Service {
   std::string mysql_password_;
   std::string pass_phrase_;
   int hash_len_;
+  int fail_rate_;
 
   grpc::Status GetUserByCredentials(User* user);
   grpc::Status GetUserByUserId(User* user);
@@ -107,6 +138,31 @@ class MultiPaxosServiceImpl final : public MultiPaxos::Service {
   grpc::Status GetFollowingsByUserId(User* user,
                                      GetFollowingsResponse* response);
   grpc::Status GetFollowersByUserId(User* user, GetFollowersResponse* response);
+  grpc::Status GetCoordinator();
+  grpc::Status ElectNewCoordinator();
+  grpc::Status GetRecovery();
+  grpc::Status Register(Proposal* proposal);
+  grpc::Status SetUser(Proposal* proposal);
+  grpc::Status SetPost(Proposal* proposal);
+  grpc::Status SetLike(Proposal* proposal);
+  grpc::Status SetComment(Proposal* proposal);
+  grpc::Status SetFollow(Proposal* proposal);
+  bool RandomFail();
+  grpc::Status RunPaxos(Proposal* proposal);
+
+  PaxosLog GetPaxosLog(ProposalType type, int round);
+  // Returns the latest Paxos round number for the given type.
+  int GetLatestRound(ProposalType type);
+  // Add PaxosLog when Acceptor receives a proposal.
+  void AddPaxosLog(ProposalType type, int round);
+  // Add PaxosLog when Acceptor promises a proposal.
+  void AddPaxosLog(ProposalType type, int round, int promised_id);
+  // Add PaxosLog when Acceptor accepts a proposal.
+  void AddPaxosLog(ProposalType type, int round, int accepted_id,
+                   Proposal proposal);
+  // Add PaxosLog from recovery snapshot.
+  void AddPaxosLog(ProposalType type, int round, int promised_id,
+                   int accepted_id, Proposal proposal);
 };
 
 }  // namespace obiew

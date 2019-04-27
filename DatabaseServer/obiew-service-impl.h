@@ -76,10 +76,6 @@ class ObiewServiceImpl final : public Obiew::Service {
                              GetFollowingsResponse* response) override;
 
  private:
-  const std::string obiew_address_;
-  const std::string my_paxos_address_;
-  std::mutex log_mtx_;
-  PaxosStubsMap* paxos_stubs_map_;
 
   grpc::Status ForwardToCoordinator(grpc::ClientContext* cc,
                                     MultiPaxos::Stub* stub,
@@ -131,6 +127,12 @@ class ObiewServiceImpl final : public Obiew::Service {
                                     SetFollowResponse* response);
   template <typename Request, typename Response>
   grpc::Status RequestFlow(const Request& request, Response* response);
+  grpc::Status ElectNewCoordinator();
+
+  const std::string obiew_address_;
+  const std::string my_paxos_address_;
+  std::mutex log_mtx_;
+  PaxosStubsMap* paxos_stubs_map_;
 };
 
 }  // namespace obiew

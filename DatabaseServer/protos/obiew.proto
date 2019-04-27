@@ -50,10 +50,11 @@ message Post {
     int32 post_id = 1;
     int32 user_id = 2;
     string content = 3;
-    int32 image_id = 4; // Id for image look-up.
+    int32 image_id = 4;  // Id for image look-up.
     string created = 5;
-    Post original_post = 6; // Only exist if the Post is a re-post
-    int32 direct_repost_id = 7; //Should be 0 or null if the Post is not a re-post.
+    Post original_post = 6;  // Only exist if the Post is a re-post
+    int32 direct_repost_id =
+        7;  // Should be 0 or null if the Post is not a re-post.
     int32 num_reposts = 8;
     int32 num_comments = 9;
     int32 num_likes = 10;
@@ -74,9 +75,9 @@ message UserStat {
 // A User.
 message User {
     int32 user_id = 1;
-    string password = 2; // TODO: Encryption.
+    string password = 2;  // TODO: Encryption.
     string name = 3;
-    int32 profile_picture = 4; // Id for image look-up.
+    int32 profile_picture = 4;  // Id for image look-up.
     string email = 5;
     string phone = 6;
     int32 num_posts = 7;
@@ -87,7 +88,7 @@ message User {
 
 // Get Feed Request.
 message GetFeedRequest {
-    User user = 1; // Require: user_id
+    User user = 1;  // Require: user_id
 }
 
 // Get Feed Response.
@@ -97,7 +98,7 @@ message GetFeedResponse {
 
 // Get Post Request.
 message GetPostRequest {
-    Post post = 1; // Require: post_id
+    Post post = 1;  // Require: post_id
 }
 
 // Get Post Response.
@@ -107,7 +108,7 @@ message GetPostResponse {
 
 // Set Post Request.
 message SetPostRequest {
-    Post post = 1; // Require: user_d, content, (optional)direct_repost_id
+    Post post = 1;  // Require: user_d, content, (optional)direct_repost_id
     OperationType operation = 2;
 }
 
@@ -127,34 +128,35 @@ message GetUserStatResponse {
 }
 
 message RegisterRequest {
-    User user = 1; // Require: Name, Password, Email, Phone
+    User user = 1;  // Require: Name, Password, Email, Phone
 }
 
 message RegisterResponse {
-    User user = 1; // Contain: UserId, Name, Email, Phone
+    User user = 1;  // Contain: UserId, Name, Email, Phone
 }
 
 message LogInRequest {
-    User user = 1; // Require: Name, Password
+    User user = 1;  // Require: Name, Password
 }
 
 message LogInResponse {
-    User user = 1; // Contain: UserId, Name, Email, Phone
+    User user = 1;  // Contain: UserId, Name, Email, Phone
 }
 
 // Get User Request.
 message GetUserRequest {
-    User user = 1; // Require: UserId
+    User user = 1;  // Require: UserId
 }
 
 // Get User Response.
 message GetUserResponse {
-    User user = 1; // Contain: UserId, Name, Email, Phone, num_posts, num_following, num_followers, Posts
+    User user = 1;  // Contain: UserId, Name, Email, Phone, num_posts,
+                    // num_following, num_followers, Posts
 }
 
 // Get Followers Request.
 message GetFollowersRequest {
-    User user = 1; // Require: UserId
+    User user = 1;  // Require: UserId
 }
 
 // Get Followers Response.
@@ -164,7 +166,7 @@ message GetFollowersResponse {
 
 // Get Followings Request.
 message GetFollowingsRequest {
-    User user = 1; // Require: UserId
+    User user = 1;  // Require: UserId
 }
 
 // Get Followings Response.
@@ -174,7 +176,7 @@ message GetFollowingsResponse {
 
 // Set User Request.
 message SetUserRequest {
-    User user = 1; // Require: UserId, Name, Password, Email, Phone
+    User user = 1;  // Require: UserId, Name, Password, Email, Phone
     OperationType operation = 2;
 }
 
@@ -185,7 +187,7 @@ message SetUserResponse {
 
 // Set Like Request.
 message SetLikeRequest {
-    Like like = 1; // Require: user_id, post_id
+    Like like = 1;  // Require: user_id, post_id
     OperationType operation = 2;
 }
 
@@ -196,7 +198,7 @@ message SetLikeResponse {
 
 // Set Comment Request.
 message SetCommentRequest {
-    Comment comment = 1; // Require: user_id, post_id, content
+    Comment comment = 1;  // Require: user_id, post_id, content
     OperationType operation = 2;
 }
 
@@ -205,73 +207,192 @@ message SetCommentResponse {
     Comment comment = 1;
 }
 
-
 // Set Follow Request.
 message SetFollowRequest {
-    User follower = 1; // Require: user_id
-    User followee= 2; // Require: user_id
+    User follower = 1;  // Require: user_id
+    User followee = 2;  // Require: user_id
     OperationType operation = 3;
 }
 
 // Set Follow Response.
 message SetFollowResponse {
     User follower = 1;
-    User followee= 2;
+    User followee = 2;
     string created = 3;
+}
+
+// ELECT Coordinator for Paxos run
+message ElectCoordinatorRequest {
+    string coordinator = 1;
+}
+
+// GET Coordinator for Paxos run
+message GetCoordinatorResponse {
+    string coordinator = 1;
+}
+
+enum ProposalType {
+    NONE = 0;
+    COORDINATOR = 1;
+    SQL = 2;
+}
+
+message Proposal {
+    ProposalType type = 1;
+    oneof request {
+        RegisterRequest register_request = 2;
+        SetUserRequest set_user_request = 3;
+        SetPostRequest set_post_request = 4;
+        SetCommentRequest set_comment_request = 5;
+        SetLikeRequest set_like_request = 6;
+        SetFollowRequest set_follow_request = 7;
+    }
+    oneof response {
+        RegisterResponse register_response = 8;
+        SetUserResponse set_user_response = 9;
+        SetPostResponse set_post_response = 10;
+        SetCommentResponse set_comment_response = 11;
+        SetLikeResponse set_like_response = 12;
+        SetFollowResponse set_follow_response = 13;
+    }
+    string coordinator = 14;
+    string sql_query = 15;
+}
+
+// round: the id of the current Paxos instance.
+// propose_id: the id of the proposal in current Paxos run.
+message PrepareRequest {
+    int32 round = 1;
+    int32 propose_id = 2;
+    ProposalType type = 3;
+}
+
+// round: the id of the current Paxos instance.
+// propose_id: the id of the proposal in current Paxos run.
+// accepted_id: the highest accepted propose_id (if present).
+// proposal: the proposal of last accepted proposal to set proposal for a key.
+message PromiseResponse {
+    int32 round = 1;
+    int32 propose_id = 2;
+    int32 accepted_id = 3;
+    Proposal proposal = 4;
+}
+
+// round: the id of the current Paxos instance.
+// propose_id: the id of the proposal in current Paxos run.
+// proposal: the proposal proposed to set for a key.
+message ProposeRequest {
+    int32 round = 1;
+    int32 propose_id = 2;
+    Proposal proposal = 3;
+}
+
+// round: the id of the current Paxos instance.
+// propose_id: the id of the proposal in current Paxos run.
+// proposal: the proposal accepted to set for a key.
+message AcceptResponse {
+    int32 round = 1;
+    int32 propose_id = 2;
+    Proposal proposal = 3;
+}
+
+// acceptance: the accepted proposal to be executed by Learner.
+message InformRequest {
+    AcceptResponse acceptance = 1;
+}
+
+// acceptance: the accepted proposal to be executed by Learner.
+message InformResponse {
+    Proposal proposal = 1;
+}
+
+message PaxosLog {
+    int32 promised_id = 1;
+    int32 accepted_id = 2;
+    Proposal proposal = 3;
+    ProposalType type = 4;
+}
+
+message PaxosLogs {
+    map<int32, PaxosLog> logs = 1;
+}
+
+message RecoverRequest {
+    int32 log_id = 1;
+    ProposalType type = 2;
+}
+message RecoverResponse {
+    map<string, PaxosLogs> paxos_logs = 1;
+    ProposalType type = 2;
 }
 
 // RPC Service for posts, comments, likes, and follows.
 service Obiew {
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
 
-    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+    rpc LogIn(LogInRequest) returns (LogInResponse) {}
 
-    rpc LogIn (LogInRequest) returns (LogInResponse) {}
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {
+    }  // Including Posts and Userstats
 
-    rpc GetUser (GetUserRequest) returns (GetUserResponse) {} // Including Posts and Userstats
+    rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse) {}
 
-    rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
+    rpc GetFollowings(GetFollowingsRequest) returns (GetFollowingsResponse) {}
 
-    rpc GetFollowings (GetFollowingsRequest) returns (GetFollowingsResponse) {}
+    rpc GetFeed(GetFeedRequest) returns (GetFeedResponse) {}
 
-    rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
+    rpc GetPost(GetPostRequest) returns (GetPostResponse) {
+    }  // Including Comments, Likes and Reposts
 
-    rpc GetPost (GetPostRequest) returns (GetPostResponse) {} // Including Comments, Likes and Reposts
+    rpc SetUser(SetUserRequest) returns (SetUserResponse) {}
 
-    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
+    rpc SetPost(SetPostRequest) returns (SetPostResponse) {}
 
-    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
+    rpc SetComment(SetCommentRequest) returns (SetCommentResponse) {}
 
-    rpc SetComment (SetCommentRequest) returns (SetCommentResponse) {}
+    rpc SetLike(SetLikeRequest) returns (SetLikeResponse) {}
 
-    rpc SetLike (SetLikeRequest) returns (SetLikeResponse) {}
-
-    rpc SetFollow (SetFollowRequest) returns (SetFollowResponse) {}
+    rpc SetFollow(SetFollowRequest) returns (SetFollowResponse) {}
 }
 
 // RPC Service for running MultiPaxos.
 service MultiPaxos {
-    
-    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+    rpc Register(RegisterRequest) returns (RegisterResponse) {}
 
-    rpc LogIn (LogInRequest) returns (LogInResponse) {}
+    rpc LogIn(LogInRequest) returns (LogInResponse) {}
 
-    rpc GetUser (GetUserRequest) returns (GetUserResponse) {}
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {}
 
-    rpc GetFeed (GetFeedRequest) returns (GetFeedResponse) {}
+    rpc GetFeed(GetFeedRequest) returns (GetFeedResponse) {}
 
-    rpc GetPost (GetPostRequest) returns (GetPostResponse) {}
+    rpc GetPost(GetPostRequest) returns (GetPostResponse) {}
 
-    rpc SetUser (SetUserRequest) returns (SetUserResponse) {}
+    rpc SetUser(SetUserRequest) returns (SetUserResponse) {}
 
-    rpc SetPost (SetPostRequest) returns (SetPostResponse) {}
+    rpc SetPost(SetPostRequest) returns (SetPostResponse) {}
 
-    rpc SetComment (SetCommentRequest) returns (SetCommentResponse) {}
+    rpc SetComment(SetCommentRequest) returns (SetCommentResponse) {}
 
-    rpc SetLike (SetLikeRequest) returns (SetLikeResponse) {}
+    rpc SetLike(SetLikeRequest) returns (SetLikeResponse) {}
 
-    rpc SetFollow (SetFollowRequest) returns (SetFollowResponse) {}
+    rpc SetFollow(SetFollowRequest) returns (SetFollowResponse) {}
 
-    rpc GetFollowers (GetFollowersRequest) returns (GetFollowersResponse) {}
+    rpc GetFollowers(GetFollowersRequest) returns (GetFollowersResponse) {}
 
-    rpc GetFollowings (GetFollowingsRequest) returns (GetFollowingsResponse) {}
+    rpc GetFollowings(GetFollowingsRequest) returns (GetFollowingsResponse) {}
+
+    // Elect Coordinator.
+    rpc ElectCoordinator(ElectCoordinatorRequest) returns (EmptyMessage) {}
+    // Get the current coordinator.
+    rpc GetCoordinator(EmptyMessage) returns (GetCoordinatorResponse) {}
+    // Phase 1. Proposer(Coordinator) -> Acceptors.
+    rpc Prepare(PrepareRequest) returns (PromiseResponse) {}
+    // Phase 2. Proposer(Coordinator) -> Acceptors.
+    rpc Propose(ProposeRequest) returns (AcceptResponse) {}
+    // Phase 3. Proposer(Coordinator) -> Learners.
+    rpc Inform(InformRequest) returns (InformResponse) {}
+    // Test if the server is available.
+    rpc Ping(EmptyMessage) returns (EmptyMessage) {}
+    // After brought up again, a server will catch up with others' logs.
+    rpc Recover(RecoverRequest) returns (RecoverResponse) {}
 }

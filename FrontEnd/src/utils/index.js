@@ -1,5 +1,7 @@
 const utils = {};
 
+utils.defaultUrl = "https://sleepy-island-43632.herokuapp.com"
+
 utils.defaultObiew = strMsg => ({
     userId: Date.now(),
     obiewId: Date.now(),

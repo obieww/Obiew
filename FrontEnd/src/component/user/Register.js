@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import {
   changePage,
 } from '../../store/actions';
+import utils from "../../utils";
 import './user.less'
 
 class Register extends Component {
@@ -67,7 +68,7 @@ class Register extends Component {
       password,
       username,
     } = this.state;
-    fetch('https://sleepy-island-43632.herokuapp.com//api/user/register', {
+    fetch(utils.defaultUrl + '/api/user/register', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

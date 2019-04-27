@@ -1,4 +1,5 @@
 import React, {Component} from "react";
+import utils from "../../utils";
 import Obiew from "./Obiew.js";
 import Reply from "./Reply.js";
 import Post from "./Post.js";
@@ -21,6 +22,7 @@ class Card extends Component {
     const {
       onCreateNewLike,
       onDeleteLike,
+      userId,
     } = this.props;
     const {
       obiew,
@@ -30,10 +32,26 @@ class Card extends Component {
     } = this.state
     if (key === "like") {
       if (!liked) {
-        onCreateNewLike(obiew.obiewId, {
-          userId: 0,
-          obiewId: obiew.obiewId
+        fetch(utils.defaultUrl + '/api/obiew/like', {
+          method: 'post',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({
+            user: {
+              userId: userId
+            },
+            obiew: {
+              obiewId: obiew.obiewId
+            }
+          })
         })
+        .then(response => response.json())
+        .then(response => {
+          onCreateNewLike(obiew.obiewId, {
+            userId: 0,
+            obiewId: obiew.obiewId
+          })
+        })
+        .catch(err => console.log(err));
       } else {
         onDeleteLike(obiew.obiewId, 0);
       }
@@ -61,7 +79,7 @@ class Card extends Component {
       obiew
     } = this.state;
     console.log(userId, obiew.obiewId);
-    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/comment', {
+    fetch(utils.defaultUrl + '/api/obiew/comment', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({
@@ -74,10 +92,11 @@ class Card extends Component {
         }
       })
     })
+    .then(response => response.json())
     .then(response => {
       onCreateNewComment(obiew.obiewId, {
         username: username,
-        commentId: Date.now(),
+        commentId: response.obiewId,
         obiewId: obiew.obiewId,
         userId: obiew.userId,
         timestamp: Date.now(),

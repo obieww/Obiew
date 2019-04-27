@@ -6,6 +6,7 @@ import {
   changeUser,
   changeObiews,
 } from '../../store/actions';
+import utils from "../../utils";
 import './user.less';
 
 class Login extends Component {
@@ -41,7 +42,7 @@ class Login extends Component {
       onChangePage,
       onChangeUser,
     } = this.props;
-    fetch('https://sleepy-island-43632.herokuapp.com//api/user/login', {
+    fetch(utils.defaultUrl + '/api/user/login', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

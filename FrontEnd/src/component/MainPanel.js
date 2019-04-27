@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import {
   createNewObiew,
 } from '../store/actions';
+import utils from "../utils";
 import "./MainPanel.less";
 
 class MainPanel extends Component {
@@ -24,7 +25,7 @@ class MainPanel extends Component {
       username,
       onChangeObiews,
     } = this.props
-    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/randomfeed', {
+    fetch(utils.defaultUrl + '/api/obiew/randomfeed', {
       method: 'GET',
       headers: {'Content-Type': 'application/json'},
     })
@@ -73,7 +74,7 @@ class MainPanel extends Component {
       username,
       onCreateNewObiew,
     } = this.props;
-    fetch('https://sleepy-island-43632.herokuapp.com/api/obiew/post', {
+    fetch(utils.defaultUrl + '/api/obiew/post', {
       method: 'post',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({

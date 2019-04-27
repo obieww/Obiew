@@ -50,7 +50,7 @@ class MainPanel extends Component {
           })), 
           reobiews: [],
           obiew: obiew.content,
-        })
+        }))
       );
     })
     .catch(err => console.log(err));

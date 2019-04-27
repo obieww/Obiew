@@ -727,12 +727,6 @@ Status MultiPaxosServiceImpl::CreatePost(Post* post) {
     }
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS PostId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -822,12 +816,6 @@ Status MultiPaxosServiceImpl::CreateLike(Like* like) {
     result = query.execute(like->user_id(), like->post_id());
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS LikeId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -920,12 +908,6 @@ Status MultiPaxosServiceImpl::CreateComment(Comment* comment) {
                            comment->content());
     if (result.rows() > 0) {
       std::string stmt = "SELECT LAST_INSERT_ID() AS CommentId";
-      mysqlpp::Connection mysql_conn(false);
-      if (mysql_conn.connect(db_name_.c_str(), mysql_server_.c_str(),
-                             mysql_user_.c_str(), mysql_password_.c_str())) {
-      } else {
-        return Status(grpc::StatusCode::ABORTED, "Mysql Connection Failed.");
-      }
       mysqlpp::Query query = mysql_conn.query(stmt);
       query.parse();
       mysqlpp::StoreQueryResult result_set = query.store();
@@ -1507,8 +1489,8 @@ Status MultiPaxosServiceImpl::GetRecovery() {
     if (!inform_status.ok()) {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       std::cout << inform_resp.proposal().DebugString();
-      TIME_LOG << "[" << my_paxos_address_ << "] "
-               << "  Recover SQL falied." << std::endl;
+      // TIME_LOG << "[" << my_paxos_address_ << "] "
+      //          << "  Recover SQL falied." << std::endl;
     } else {
       std::unique_lock<std::mutex> writer_lock(log_mtx_);
       std::cout << inform_resp.proposal().DebugString();

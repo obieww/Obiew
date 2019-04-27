@@ -13,6 +13,18 @@ DROP TABLE IF EXISTS PostStats;
 DROP TABLE IF EXISTS UserStats;
 DROP TABLE IF EXISTS Posts;
 DROP TABLE IF EXISTS Users;
+DROP TABLE IF EXISTS PaxosLogs;
+
+# Create PaxosLogs.
+CREATE TABLE PaxosLogs (
+    LogId INT AUTO_INCREMENT,
+    ServerId INT,
+    PromisedId INT,
+    AcceptedId INT,
+    Type ENUM("COORDINATOR", "SQL"),
+    Content VARCHAR(255),
+    CONSTRAINT pk_PaxosLogs_LogId PRIMARY KEY (LogId)
+);
 
 # Create Users.
 CREATE TABLE Users (
@@ -113,7 +125,8 @@ CREATE TABLE PostLikes (
         ON UPDATE CASCADE ON DELETE SET NULL,
     CONSTRAINT fk_PostLikes_PostId FOREIGN KEY (PostId)
         REFERENCES Posts(PostId)
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT uniq_PostLikes_PostId_UserId UNIQUE (PostId, UserId)
 );
 
 # Create Triggers

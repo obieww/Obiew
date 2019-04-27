@@ -8,44 +8,44 @@
 
 #include <grpcpp/grpcpp.h>
 
-#include "obiew.grpc.pb.h"
 #include "obiew-service-impl.h"
+#include "obiew.grpc.pb.h"
 #include "time_log.h"
 
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
-using obiew::User;
-using obiew::RegisterRequest;
-using obiew::RegisterResponse;
-using obiew::LogInRequest;
-using obiew::LogInResponse;
+using obiew::Comment;
+using obiew::GetFeedRequest;
+using obiew::GetFeedResponse;
+using obiew::GetFollowersRequest;
+using obiew::GetFollowersResponse;
+using obiew::GetFollowingsRequest;
+using obiew::GetFollowingsResponse;
+using obiew::GetPostRequest;
+using obiew::GetPostResponse;
 using obiew::GetUserRequest;
 using obiew::GetUserResponse;
-using obiew::SetUserRequest;
-using obiew::SetUserResponse;
-using obiew::SetPostRequest;
-using obiew::SetPostResponse;
-using obiew::SetLikeRequest;
-using obiew::SetLikeResponse;
+using obiew::Like;
+using obiew::LogInRequest;
+using obiew::LogInResponse;
+using obiew::Obiew;
+using obiew::OperationType;
+using obiew::Post;
+using obiew::RegisterRequest;
+using obiew::RegisterResponse;
+using obiew::Repost;
 using obiew::SetCommentRequest;
 using obiew::SetCommentResponse;
 using obiew::SetFollowRequest;
 using obiew::SetFollowResponse;
-using obiew::GetFeedRequest;
-using obiew::GetFeedResponse;
-using obiew::GetPostRequest;
-using obiew::GetPostResponse;
-using obiew::GetFollowingsRequest;
-using obiew::GetFollowingsResponse;
-using obiew::GetFollowersRequest;
-using obiew::GetFollowersResponse;
-using obiew::Obiew;
-using obiew::Post;
-using obiew::Comment;
-using obiew::Like;
-using obiew::Repost;
-using obiew::OperationType;
+using obiew::SetLikeRequest;
+using obiew::SetLikeResponse;
+using obiew::SetPostRequest;
+using obiew::SetPostResponse;
+using obiew::SetUserRequest;
+using obiew::SetUserResponse;
+using obiew::User;
 // #define TIME_LOG() std::cout << TimeNow();
 
 class ObiewClient {
@@ -53,7 +53,8 @@ class ObiewClient {
   ObiewClient(std::shared_ptr<Channel> channel)
       : stub_(Obiew::NewStub(channel)) {}
 
-  void Register(const std::string& name, const std::string& password, const std::string& email, const std::string& phone) {
+  void Register(const std::string& name, const std::string& password,
+                const std::string& email, const std::string& phone) {
     ClientContext context;
     User user;
     user.set_name(name);
@@ -69,7 +70,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.user().DebugString();
-      TIME_LOG << "UserId " << response.user().user_id() << " is registered!" << std::endl;
+      TIME_LOG << "UserId " << response.user().user_id() << " is registered!"
+               << std::endl;
     }
   }
 
@@ -87,7 +89,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.user().DebugString();
-      TIME_LOG << "UserId " << response.user().user_id() << " is logged in!" << std::endl;
+      TIME_LOG << "UserId " << response.user().user_id() << " is logged in!"
+               << std::endl;
     }
   }
 
@@ -104,7 +107,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.user().DebugString();
-      TIME_LOG << "UserId " << response.user().user_id() << " is found!" << std::endl;
+      TIME_LOG << "UserId " << response.user().user_id() << " is found!"
+               << std::endl;
     }
   }
 
@@ -125,7 +129,9 @@ class ObiewClient {
     }
   }
 
-  void UpdateUser(int user_id, const std::string& name, const std::string& password, const std::string& email, const std::string& phone) {
+  void UpdateUser(int user_id, const std::string& name,
+                  const std::string& password, const std::string& email,
+                  const std::string& phone) {
     ClientContext context;
     User user;
     user.set_user_id(user_id);
@@ -178,7 +184,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.post().DebugString();
-      TIME_LOG << "PostId " << response.post().post_id() << " is created!" << std::endl;
+      TIME_LOG << "PostId " << response.post().post_id() << " is created!"
+               << std::endl;
     }
   }
 
@@ -198,7 +205,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.post().DebugString();
-      TIME_LOG << "PostId " << response.post().post_id() << " is created!" << std::endl;
+      TIME_LOG << "PostId " << response.post().post_id() << " is created!"
+               << std::endl;
     }
   }
 
@@ -234,7 +242,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.like().DebugString();
-      TIME_LOG << "LikeId " << response.like().like_id() << " is created!" << std::endl;
+      TIME_LOG << "LikeId " << response.like().like_id() << " is created!"
+               << std::endl;
     }
   }
 
@@ -271,7 +280,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.comment().DebugString();
-      TIME_LOG << "CommentId " << response.comment().comment_id() << " is created!" << std::endl;
+      TIME_LOG << "CommentId " << response.comment().comment_id()
+               << " is created!" << std::endl;
     }
   }
 
@@ -291,7 +301,8 @@ class ObiewClient {
       TIME_LOG << "Error Code " << status.error_code() << ". "
                << status.error_message() << std::endl;
     } else {
-      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id << "] is deleted!" << std::endl;
+      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id
+               << "] is deleted!" << std::endl;
     }
   }
 
@@ -312,7 +323,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.follower().DebugString();
-      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id << "] is created!" << std::endl;
+      TIME_LOG << "Follow [" << follower_id << " follows " << followee_id
+               << "] is created!" << std::endl;
     }
   }
 
@@ -363,7 +375,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.DebugString();
-      TIME_LOG << "Followers for UserId " << user_id << " are found!" << std::endl;
+      TIME_LOG << "Followers for UserId " << user_id << " are found!"
+               << std::endl;
     }
   }
 
@@ -380,7 +393,8 @@ class ObiewClient {
                << status.error_message() << std::endl;
     } else {
       std::cout << response.DebugString();
-      TIME_LOG << "Followings for UserId " << user_id << " are found!" << std::endl;
+      TIME_LOG << "Followings for UserId " << user_id << " are found!"
+               << std::endl;
     }
   }
 
@@ -395,7 +409,6 @@ std::string ToLowerCase(const std::string& s) {
   }
   return lower;
 }
-
 
 void RunClient(const std::string& server_address) {
   TIME_LOG << "Listening to server_address: " << server_address << std::endl;
@@ -419,72 +432,58 @@ void RunClient(const std::string& server_address) {
       TIME_LOG << "Sending request: Register " << args[1] << std::endl;
       client.Register(args[1], args[2], args[3], args[4]);
     } else if (args.size() == 3 && ToLowerCase(args[0]) == "login") {
-      TIME_LOG << "Sending request: LogIn " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: LogIn " << args[1] << std::endl;
       client.LogIn(args[1], args[2]);
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getuser") {
-      TIME_LOG << "Sending request: GetUser " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: GetUser " << args[1] << std::endl;
       client.GetUser(std::stoi(args[1]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "deleteuser") {
-      TIME_LOG << "Sending request: DeleteUser " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: DeleteUser " << args[1] << std::endl;
       client.DeleteUser(std::stoi(args[1]));
     } else if (args.size() == 6 && ToLowerCase(args[0]) == "updateuser") {
-      TIME_LOG << "Sending request: UpdateUser " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: UpdateUser " << args[1] << std::endl;
       client.UpdateUser(std::stoi(args[1]), args[2], args[3], args[4], args[5]);
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletepost") {
-      TIME_LOG << "Sending request: DeletePost " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: DeletePost " << args[1] << std::endl;
       client.DeletePost(std::stoi(args[1]));
     } else if (args.size() == 3 && ToLowerCase(args[0]) == "createpost") {
-      TIME_LOG << "Sending request: CreatePost " << args[2]
-               << std::endl;
+      TIME_LOG << "Sending request: CreatePost " << args[2] << std::endl;
       client.CreatePost(std::stoi(args[1]), args[2]);
     } else if (args.size() == 4 && ToLowerCase(args[0]) == "createpost") {
-      TIME_LOG << "Sending request: CreatePost " << args[2]
-               << std::endl;
+      TIME_LOG << "Sending request: CreatePost " << args[2] << std::endl;
       client.CreatePost(std::stoi(args[1]), args[2], std::stoi(args[3]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletelike") {
-      TIME_LOG << "Sending request: DeleteLike " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: DeleteLike " << args[1] << std::endl;
       client.DeleteLike(std::stoi(args[1]));
     } else if (args.size() == 3 && ToLowerCase(args[0]) == "createlike") {
       TIME_LOG << "Sending request: CreateLike for PostId" << args[1]
                << std::endl;
       client.CreateLike(std::stoi(args[1]), std::stoi(args[2]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "deletecomment") {
-      TIME_LOG << "Sending request: DeleteComment " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: DeleteComment " << args[1] << std::endl;
       client.DeleteComment(std::stoi(args[1]));
     } else if (args.size() == 4 && ToLowerCase(args[0]) == "createcomment") {
-      TIME_LOG << "Sending request: CreateComment " << args[3]
-               << std::endl;
+      TIME_LOG << "Sending request: CreateComment " << args[3] << std::endl;
       client.CreateComment(std::stoi(args[1]), std::stoi(args[2]), args[3]);
     } else if (args.size() == 3 && ToLowerCase(args[0]) == "deletefollow") {
-      TIME_LOG << "Sending request: DeleteFollow " << args[1] << " follows " << args[2]
-               << std::endl;
+      TIME_LOG << "Sending request: DeleteFollow " << args[1] << " follows "
+               << args[2] << std::endl;
       client.DeleteFollow(std::stoi(args[1]), std::stoi(args[2]));
     } else if (args.size() == 3 && ToLowerCase(args[0]) == "createfollow") {
-      TIME_LOG << "Sending request: CreateFollow " << args[1] << " follows " << args[2]
-               << std::endl;
+      TIME_LOG << "Sending request: CreateFollow " << args[1] << " follows "
+               << args[2] << std::endl;
       client.CreateFollow(std::stoi(args[1]), std::stoi(args[2]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfeed") {
-      TIME_LOG << "Sending request: GetFeed for User " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: GetFeed for User " << args[1] << std::endl;
       client.GetFeed(std::stoi(args[1]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getpost") {
-      TIME_LOG << "Sending request: GetPost " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: GetPost " << args[1] << std::endl;
       client.GetPost(std::stoi(args[1]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfollowers") {
-      TIME_LOG << "Sending request: GetFollowers " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: GetFollowers " << args[1] << std::endl;
       client.GetFollowers(std::stoi(args[1]));
     } else if (args.size() == 2 && ToLowerCase(args[0]) == "getfollowings") {
-      TIME_LOG << "Sending request: GetFollowings " << args[1]
-               << std::endl;
+      TIME_LOG << "Sending request: GetFollowings " << args[1] << std::endl;
       client.GetFollowings(std::stoi(args[1]));
     } else {
       TIME_LOG << "Invalid command." << std::endl;
@@ -492,13 +491,13 @@ void RunClient(const std::string& server_address) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char** argv) {
   // Set server address.
   std::string server_address = "localhost:8000";
   if (argc > 1) {
     server_address = argv[1];
   }
-    
+
   TIME_LOG << "Server address set to " << server_address << std::endl;
 
   RunClient(server_address);

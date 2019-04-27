@@ -25,15 +25,19 @@ INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 2);
 INSERT INTO Follows (UserId, FolloweeId) VALUES (5, 4);
 
 
-INSERT INTO Posts (UserId, Content) VALUES (1, "My first post.");
-INSERT INTO Posts (UserId, Content) VALUES (2, "My first post.");
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "The first post.", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "My first post.", NULL);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "Welcome!", 2);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Thank you!", 3);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (3, "Haha :)", 4);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "Haha :)", 1);
-INSERT INTO Posts (UserId, Content) VALUES (5, "Avengers!");
-INSERT INTO Posts (UserId, Content) VALUES (4, "I love Taylor Swift.");
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (5, "Avengers!", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (4, "I love Taylor Swift.", NULL);
 INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Yeah.", 8);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (5, "Me too!", 8);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (2, "Feeling fantastic today :D", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "I love boba milktea", NULL);
+INSERT INTO Posts (UserId, Content, RepostId) VALUES (1, "self reposting", 12);
 
 
 INSERT INTO PostComments (PostId, UserId, Content) VALUES (2, 1, "Nice to meet you!");
